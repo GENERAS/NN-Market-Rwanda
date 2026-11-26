@@ -1,0 +1,6 @@
+{
+  "name": "NN Market Rwanda",
+  "description": "Independent N-Nutrition product marketing, customer product requests, and distributor referral assistance platform in Rwanda.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

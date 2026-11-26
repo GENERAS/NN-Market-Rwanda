@@ -1,0 +1,1271 @@
+NN Market Rwanda — Master Development Prompt
+:::writing{variant="document" id="73192"}
+# MASTER DEVELOPMENT PROMPT
+# NN MARKET RWANDA
+## Independent N-Nutrition Product Marketing, Customer Requests & Referral Platform
+
+You are acting as a senior full-stack software engineer, software architect, UX/UI designer, conversion optimization specialist, SEO/AEO strategist and database engineer.
+
+Your assignment is to design and build a complete, production-ready website called **NN Market Rwanda**.
+
+Do not build just a landing page or visual prototype. Build a complete, functional platform with a public-facing website, database, secure admin dashboard, product management, customer request management, referral application management and all necessary backend functionality.
+
+The platform must be easy to understand and operate, particularly for people who:
+- Have limited technical knowledge.
+- Have limited English fluency.
+- Are using smartphones.
+- Have slow internet connections.
+- Prefer simple instructions and short forms.
+
+The ultimate objective is to make discovering products, requesting products and understanding the N-Nutrition joining process extremely easy.
+
+---
+
+# PHASE 1: BUSINESS IDENTITY AND POSITIONING
+
+## 1.1 Business identity
+
+Website name: NN Market Rwanda
+
+Business category:
+Independent product marketing, product discovery, customer assistance and referral platform.
+
+Business relationship:
+Operated by an independent N-Nutrition marketing agent.
+
+The website is NOT the official corporate website of N-Nutrition & Market.
+
+Never create the impression that NN Market Rwanda is:
+- N-Nutrition headquarters.
+- An official corporate office.
+- The company's official registration portal.
+- A medical institution.
+- A pharmacy unless independently licensed and authorized to operate as one.
+
+The website must clearly disclose:
+
+"NN Market Rwanda is an independently operated marketing and customer-assistance platform run by an N-Nutrition marketing agent. We help customers discover products, submit product requests and learn about joining opportunities through referral assistance. We are not the official corporate website of N-Nutrition & Market."
+
+Do not use company trademarks, official logos or protected materials in a misleading way. Use only assets that are authorized.
+
+## 1.2 Primary business objectives
+
+The platform must accomplish five objectives:
+
+1. Present genuine N-Nutrition products professionally.
+2. Allow visitors to request products easily.
+3. Capture customer names and phone numbers before revealing private contact information.
+4. Explain N-Nutrition joining opportunities and requirements.
+5. Capture potential distributor applications and direct interested people through the configured referral link.
+
+## 1.3 Main customer journeys
+
+Create two independent, clearly distinguished journeys.
+
+JOURNEY A: BUY OR REQUEST A PRODUCT
+
+Visitor → Product discovery → Product details → Request product → Enter name and phone number → Save request → Confirmation → Reveal authorized contact option → Continue conversation.
+
+JOURNEY B: JOIN N-NUTRITION
+
+Visitor → Learn about opportunity → Review requirements and costs → Submit joining interest → Save application → Confirmation → Continue through referral link → Receive assistance.
+
+Never combine these journeys into one confusing form.
+
+---
+
+# PHASE 2: BRANDING AND DESIGN SYSTEM
+
+## 2.1 Color palette
+
+Use these exact primary brand colors:
+
+Brown-gold:
+#A87936
+
+Natural green:
+#26733E
+
+White:
+#FFFFFF
+
+Additional colors:
+
+Dark text:
+#252B25
+
+Secondary text:
+#647067
+
+Light gold:
+#FBF7EF
+
+Light green:
+#F1F7F1
+
+Borders:
+#E9E7E1
+
+Error:
+#C0392B
+
+Success:
+#26733E
+
+## 2.2 Visual identity
+
+The visual direction must communicate:
+
+- Natural wellness.
+- Product quality.
+- Professionalism.
+- Simplicity.
+- Accessibility.
+- Trustworthiness.
+- Personal assistance.
+
+Use white as the dominant background.
+
+Use brown-gold for branding, headings and important visual details.
+
+Use green for primary actions, confirmations and important interaction states.
+
+Use professional typography with excellent readability.
+
+Suggested fonts:
+- Inter.
+- Manrope.
+- Lato.
+
+Use only one primary font family and a consistent type scale.
+
+## 2.3 Design rules
+
+Avoid:
+- Black-heavy designs.
+- Blue-heavy designs.
+- Excessive gradients.
+- Excessive shadows.
+- Too many borders.
+- Unnecessary animations.
+- Excessive decorative illustrations.
+- Overloaded product cards.
+- Crowded navigation.
+- Generic AI-generated website layouts.
+
+Use real product photography whenever available.
+
+Never use unrelated stock photos as actual product images.
+
+The result should look like a professionally designed product marketing business, not an automatically generated template.
+
+---
+
+# PHASE 3: INFORMATION ARCHITECTURE
+
+Create the following public pages:
+
+1. Homepage.
+2. Products catalogue.
+3. Individual product details.
+4. Product categories.
+5. Join N-Nutrition.
+6. Joining requirements.
+7. How joining works.
+8. Frequently asked questions.
+9. About NN Market Rwanda.
+10. Privacy policy.
+11. Terms and conditions.
+12. Request submission confirmation.
+13. Joining application confirmation.
+14. Contact/assistance page.
+
+Admin pages:
+
+1. Admin login.
+2. Dashboard overview.
+3. Product management.
+4. Product category management.
+5. Product request management.
+6. Joining application management.
+7. Customer management.
+8. Website content management.
+9. SEO settings.
+10. Referral settings.
+11. Contact settings.
+12. General website settings.
+
+Create clean and predictable URLs.
+
+Examples:
+
+/products
+/products/liver-support
+/products/colon-cleanse
+/categories/nutrition
+/join
+/join/requirements
+/join/how-it-works
+/about
+/privacy-policy
+/terms
+
+Only publish product URLs when the corresponding product information has been verified.
+
+---
+
+# PHASE 4: HOMEPAGE DESIGN
+
+The homepage must pass the five-second understanding test.
+
+Within approximately five seconds, a new visitor should understand:
+
+- What NN Market Rwanda offers.
+- What products they can explore.
+- How to request a product.
+- How to learn about joining N-Nutrition.
+- What happens after submitting a request.
+
+## 4.1 Navigation
+
+Desktop navigation:
+
+Logo | Home | Products | Join N-Nutrition | About
+
+Primary action:
+Explore Products
+
+Secondary action:
+Join N-Nutrition
+
+Mobile navigation:
+- Compact header.
+- Simple menu.
+- Easy-to-reach product and joining actions.
+- No crowded elements.
+
+Do not expose agent contact information in the navigation.
+
+## 4.2 Hero section
+
+Suggested headline:
+
+"Discover N-Nutrition Products. Find Your Next Opportunity."
+
+Supporting copy:
+
+"Explore available nutrition and wellness products, request what you need and discover how to join the N-Nutrition business network with assistance from an independent marketing agent."
+
+Buttons:
+
+"Explore Products"
+
+"Learn How to Join"
+
+Use an appropriate, professionally composed product image.
+
+## 4.3 Homepage sections
+
+Build these sections:
+
+A. Hero.
+
+B. Featured products.
+
+C. Browse product categories.
+
+D. How product requests work.
+
+E. Interested in joining N-Nutrition?
+
+F. Why use NN Market Rwanda?
+
+G. Frequently asked questions.
+
+H. Final call to action.
+
+I. Footer.
+
+Keep each section focused on one purpose.
+
+Do not add filler sections.
+
+Do not use fake statistics, testimonials, awards, ratings or certifications.
+
+---
+
+# PHASE 5: PRODUCT CATALOGUE
+
+Build a fully functional product catalogue connected to the database.
+
+## 5.1 Product data model
+
+Every product must support:
+
+- Unique product ID.
+- Product name.
+- URL slug.
+- Short description.
+- Full description.
+- Main image.
+- Additional images.
+- Category.
+- Price.
+- Currency.
+- Product size or quantity.
+- Ingredients, if verified.
+- Manufacturer information, if verified.
+- Product classification.
+- Availability status.
+- Featured status.
+- Publication status.
+- SEO title.
+- SEO description.
+- Date created.
+- Date updated.
+
+Prices must be stored using an appropriate numeric format and displayed in RWF when the price is denominated in Rwandan francs.
+
+## 5.2 Product catalogue features
+
+Implement:
+
+- Product search.
+- Category filtering.
+- Sorting.
+- Product cards.
+- Product detail navigation.
+- Related products.
+- Pagination or efficient loading.
+
+Search should understand product names and common relevant search terms.
+
+Do not create fake product records.
+
+## 5.3 Product card
+
+Every product card should display:
+
+- Product image.
+- Product name.
+- Short description.
+- Verified price, when available.
+- Availability, when confirmed.
+- View Details button.
+
+Avoid clutter.
+
+## 5.4 Individual product pages
+
+Every product needs its own indexable page.
+
+Display:
+
+1. Product name.
+2. Product images.
+3. Price.
+4. Description.
+5. Product specifications.
+6. Ingredients, if verified.
+7. Product quantity.
+8. Availability.
+9. FAQs.
+10. Related products.
+11. Request This Product button.
+
+Make the request button highly visible.
+
+Do not display unverified medical claims.
+
+---
+
+# PHASE 6: PRODUCT REQUEST AND LEAD CAPTURE SYSTEM
+
+THIS IS A CORE BUSINESS REQUIREMENT.
+
+The website must not publicly display the agent's phone number, WhatsApp number or other private contact details before the visitor successfully submits a product request.
+
+Do not implement this using frontend-only hiding.
+
+Contact information must be protected at the backend and database access level.
+
+## 6.1 Product request form
+
+When a visitor clicks "Request This Product", display a simple form.
+
+Required:
+
+- Name.
+- Phone number.
+
+Optional:
+
+- Product or service of interest.
+- Additional message, if necessary.
+
+When opened from a product page:
+
+Automatically attach the product ID and product name.
+
+Do not ask the visitor to select the product again.
+
+When opened from a general request page:
+
+Allow the visitor to select a product.
+
+Use simple labels:
+
+"Your Name"
+
+"Your Phone Number"
+
+"Which product are you interested in? (Optional)"
+
+Button:
+
+"Send My Request"
+
+## 6.2 Phone number validation
+
+Accept valid Rwandan phone numbers.
+
+Support:
+- Local format.
+- International +250 format.
+
+Normalize stored phone numbers to a consistent international format.
+
+Display understandable validation errors.
+
+Do not reject valid numbers merely because they contain spaces or separators.
+
+Do not assume that every customer uses the same network.
+
+## 6.3 Submission processing
+
+When the customer submits:
+
+1. Validate the name.
+2. Validate the phone number.
+3. Validate the product reference.
+4. Check for spam.
+5. Save the request.
+6. Save the date and time.
+7. Generate a unique reference number.
+8. Save the source page.
+9. Save request status as New.
+10. Return a successful response.
+
+Only after successful database insertion may the system return the authorized contact action.
+
+## 6.4 Successful submission
+
+Display:
+
+"Your request has been received!"
+
+"Thank you for your interest. Your request has been recorded. You can now continue to WhatsApp for assistance."
+
+Button:
+
+"Continue on WhatsApp"
+
+Generate a prefilled WhatsApp message containing:
+
+- Request reference.
+- Product name.
+- A short customer-request context.
+
+Do not automatically send a WhatsApp message.
+
+The customer must choose to open WhatsApp.
+
+## 6.5 Contact visibility security
+
+Critical requirements:
+
+- Contact details must not be present in the initial public page response.
+- Contact details must not be exposed in public JavaScript bundles.
+- Contact details must not be returned by public settings endpoints.
+- Contact details must not be included in product APIs.
+- Contact details must not be stored in local storage or session storage before authorization.
+- Contact details must only be retrieved through an authorized post-submission server response.
+- Failed requests must never reveal contact information.
+
+Do not allow visitors to access other customers' requests.
+
+Implement appropriate server-side rate limiting, validation and abuse protection.
+
+## 6.6 Consent
+
+Before submission, explain briefly:
+
+"By submitting, you agree that NN Market Rwanda may use your name and phone number to respond to this request."
+
+Provide a simple, understandable consent checkbox where required.
+
+Keep optional marketing consent separate from necessary request-processing consent.
+
+Do not use customer details for unrelated marketing without appropriate consent.
+
+---
+
+# PHASE 7: N-NUTRITION JOINING SYSTEM
+
+Build a complete joining-information section.
+
+The purpose is to help interested people understand the opportunity before they apply.
+
+## 7.1 Joining page
+
+Suggested heading:
+
+"Interested in Joining N-Nutrition?"
+
+Supporting text:
+
+"Understand the requirements, learn how the opportunity works and get assistance with your application through our marketing agent."
+
+Sections:
+
+1. About the opportunity.
+2. What distributors actually do.
+3. Joining requirements.
+4. Registration process.
+5. Joining costs.
+6. Training information.
+7. Product information.
+8. Compensation information, if verified.
+9. Frequently asked questions.
+10. Apply to Join.
+
+All information must come from verified company documentation or authorized sources.
+
+Do not invent requirements, fees, commissions, earning estimates or registration procedures.
+
+## 7.2 Joining requirements
+
+Make requirements easy to scan.
+
+Use:
+- Short headings.
+- Simple explanations.
+- Lists.
+- Clear cost information.
+- Step-by-step instructions.
+
+If a requirement is unknown, do not invent an answer.
+
+Allow administrators to mark information as:
+- Verified.
+- Awaiting confirmation.
+- Not currently available.
+
+Only publish confirmed information as fact.
+
+## 7.3 Joining application form
+
+Required:
+- Full name.
+- Phone number.
+
+Optional:
+- Additional question.
+
+Keep the form short.
+
+When submitted:
+
+1. Validate information.
+2. Save application.
+3. Generate application reference.
+4. Record submission date.
+5. Set status to New.
+6. Return confirmation.
+7. Make the configured referral link available.
+
+Confirmation:
+
+"Your interest has been recorded!"
+
+"Thank you for your interest in joining N-Nutrition. Follow the next step below to continue the registration process."
+
+Button:
+
+"Continue to N-Nutrition"
+
+This button must open the actual configured referral link.
+
+Clearly indicate that the referral link may lead to an external company registration process.
+
+Do not create fake registration confirmation.
+
+Do not claim that someone has become a distributor simply because they clicked the referral link.
+
+## 7.4 Referral link settings
+
+Create one centralized setting:
+
+N_NUTRITION_REFERRAL_URL
+
+Admin must be able to update the link without modifying code.
+
+Validate the destination URL before allowing it to be saved.
+
+Prevent unsafe URL schemes and open external destinations safely.
+
+If the link is missing:
+- Hide the broken action.
+- Display a clear temporary-unavailability message.
+- Offer the configured assistance option after the application has been recorded.
+
+---
+
+# PHASE 8: ADMIN DASHBOARD
+
+Build a secure admin dashboard.
+
+This is a real operational requirement, not an optional design element.
+
+## 8.1 Admin dashboard overview
+
+Show:
+
+- Total products.
+- Published products.
+- Unavailable products.
+- Total product requests.
+- New product requests.
+- Requests contacted.
+- Completed requests.
+- Total joining applications.
+- New joining applications.
+- Completed joining processes.
+
+All statistics must come from the database.
+
+Never use hardcoded dashboard numbers.
+
+## 8.2 Product management
+
+Admin must be able to:
+
+- Create products.
+- Edit products.
+- Archive products.
+- Delete products where appropriate.
+- Upload product images.
+- Change prices.
+- Change descriptions.
+- Manage categories.
+- Manage availability.
+- Add verified product information.
+- Manage FAQs.
+- Control publication.
+
+Provide clear forms and confirmation messages.
+
+## 8.3 Product request management
+
+Create a table with:
+
+- Request reference.
+- Customer name.
+- Phone number.
+- Product.
+- Optional message.
+- Submission date.
+- Status.
+
+Statuses:
+
+- New.
+- Contacted.
+- Processing.
+- Completed.
+- Cancelled.
+
+Admin can:
+- View request details.
+- Update status.
+- Search requests.
+- Filter requests.
+- Open an authorized WhatsApp conversation.
+- Add internal notes.
+
+Internal notes must never appear publicly.
+
+## 8.4 Joining application management
+
+Create a separate management area.
+
+Display:
+
+- Application reference.
+- Applicant name.
+- Phone number.
+- Submission date.
+- Status.
+- Internal notes.
+
+Statuses:
+
+- New.
+- Contacted.
+- Referral link shared.
+- External application submitted.
+- Completed.
+- Not proceeding.
+
+Admin must be able to update statuses manually.
+
+Only mark an application completed when completion has actually been verified.
+
+## 8.5 Website content management
+
+Allow the admin to edit:
+
+- Homepage content.
+- About content.
+- Joining requirements.
+- Joining costs.
+- FAQs.
+- Product information.
+- Contact messages.
+- Privacy information.
+- Terms and conditions.
+
+Content updates must not require a developer.
+
+## 8.6 General settings
+
+Create settings for:
+
+- Website name.
+- Logo.
+- Agent name or display identity.
+- Agent phone number.
+- Agent WhatsApp number.
+- Referral URL.
+- Business email.
+- Social media URLs.
+- Currency.
+- Default language.
+- SEO defaults.
+- Success messages.
+
+Separate public and private settings.
+
+Never return private settings through public API endpoints.
+
+---
+
+# PHASE 9: DATABASE ARCHITECTURE
+
+Design a relational database with appropriate indexes and relationships.
+
+Suggested tables:
+
+1. users
+2. admin_roles
+3. products
+4. product_categories
+5. product_images
+6. product_requests
+7. joining_applications
+8. faqs
+9. website_content
+10. website_settings
+11. audit_logs
+
+Suggested relationships:
+
+- Products belong to categories.
+- Products can have multiple images.
+- Product requests reference products where applicable.
+- Joining applications are independent of product requests.
+- Admin users manage records.
+- Audit logs track important administrative changes.
+
+Use unique IDs.
+
+Use appropriate created_at and updated_at fields.
+
+Store phone numbers consistently.
+
+Use foreign keys where supported.
+
+Add indexes for:
+- Product slugs.
+- Product categories.
+- Request references.
+- Application references.
+- Phone number search.
+- Request status.
+- Application status.
+- Submission dates.
+
+Protect customer records with strict authorization.
+
+Do not expose database credentials to the browser.
+
+---
+
+# PHASE 10: SEO IMPLEMENTATION
+
+SEO is a core business acquisition strategy.
+
+The objective is to make individual products and real customer needs discoverable through Google.
+
+Do not depend exclusively on the homepage.
+
+## 10.1 Search-intent architecture
+
+Build dedicated pages around genuine search intent.
+
+Potential search themes include:
+
+- N-Nutrition products in Rwanda.
+- N-Nutrition products prices in Rwanda.
+- Where to buy N-Nutrition products in Rwanda.
+- N-Nutrition distributor requirements.
+- How to join N-Nutrition in Rwanda.
+- Nutrition and wellness products in Rwanda.
+
+Create individual pages for actual products.
+
+Create category pages for genuine product categories.
+
+Create useful joining-information pages.
+
+Never create duplicate pages targeting almost identical keywords without a genuine difference in content or user intent.
+
+## 10.2 Technical SEO
+
+Implement:
+
+- Unique title tags.
+- Unique meta descriptions.
+- Canonical URLs.
+- XML sitemap.
+- Robots.txt.
+- Correct heading hierarchy.
+- Descriptive URLs.
+- Image alt attributes.
+- Image optimization.
+- Mobile-friendly rendering.
+- Internal links.
+- Breadcrumbs.
+- Open Graph metadata.
+- Social sharing metadata.
+- Search engine indexing controls.
+- Correct HTTP status codes.
+- Fast page loading.
+
+Make important content available to search engine crawlers.
+
+Avoid making important product information available only through inaccessible client-side interactions.
+
+## 10.3 Structured data
+
+Use accurate structured data where eligible:
+
+- Organization.
+- WebSite.
+- Product.
+- BreadcrumbList.
+- Article.
+- FAQPage only where its use is appropriate under current search-engine guidelines.
+
+Do not fabricate:
+- Reviews.
+- Aggregate ratings.
+- Medical certifications.
+- Corporate ownership.
+- Official company identity.
+- Product availability.
+- Prices.
+
+---
+
+# PHASE 11: ANSWER ENGINE OPTIMIZATION
+
+Make important website information easy for AI search systems to understand and reference.
+
+Every important page should provide:
+
+- A direct explanation.
+- Clear subject identification.
+- Short paragraphs.
+- Specific facts.
+- Relevant headings.
+- Accurate answers.
+- Useful internal links.
+
+Build useful FAQ content.
+
+Questions can include:
+
+1. What is NN Market Rwanda?
+2. Is NN Market Rwanda the official N-Nutrition website?
+3. What products can I request?
+4. How can I request an N-Nutrition product?
+5. How do I join N-Nutrition in Rwanda?
+6. What are the joining requirements?
+7. Is there a joining fee?
+8. How does the referral process work?
+9. How can I contact the marketing agent?
+
+Answers must reflect verified information.
+
+Do not create fake authoritative content to manipulate AI systems.
+
+Do not promise first-place search rankings or guaranteed AI citations.
+
+---
+
+# PHASE 12: BILINGUAL SUPPORT
+
+The website must support:
+
+- English.
+- Kinyarwanda.
+
+English is the default language.
+
+Provide a visible language selector.
+
+Translate all important customer-facing content:
+
+- Navigation.
+- Homepage.
+- Product categories.
+- Product request forms.
+- Validation messages.
+- Success messages.
+- Joining requirements.
+- Joining process.
+- FAQs.
+- About page.
+- Privacy notices.
+- Terms.
+
+Use natural, understandable Kinyarwanda.
+
+Do not rely on unreviewed automatic translations for important legal, medical or financial information.
+
+Remember that many visitors may understand spoken Kinyarwanda better than written English.
+
+---
+
+# PHASE 13: HEALTH AND PRODUCT INFORMATION SAFEGUARDS
+
+Because the platform deals with nutrition and wellness-related products, product accuracy is mandatory.
+
+Do not:
+
+- Claim products cure diseases without authorization.
+- Promise treatment results.
+- Present supplements as medicines.
+- Recommend replacing prescribed medicine.
+- Invent ingredients.
+- Invent clinical evidence.
+- Invent regulatory approvals.
+- Invent manufacturer claims.
+
+Store product classification.
+
+Distinguish:
+- Nutritional supplements.
+- Food products.
+- Wellness products.
+- Registered medicines, if any.
+
+Only display medicinal claims and registration information when properly verified.
+
+Include appropriate notices that product information does not replace professional medical advice.
+
+Do not collect medical histories or sensitive health information through ordinary product request forms.
+
+---
+
+# PHASE 14: SECURITY AND PRIVACY
+
+Implement production-quality security.
+
+Requirements:
+
+- Secure admin authentication.
+- Password hashing.
+- Protected admin routes.
+- Server-side authorization.
+- Secure sessions.
+- Input validation.
+- Output sanitization.
+- Rate limiting.
+- Spam protection.
+- SQL injection prevention.
+- XSS protection.
+- CSRF protection where applicable.
+- Secure file uploads.
+- Safe environment variables.
+- Appropriate CORS configuration.
+- HTTPS.
+- Database access restrictions.
+- Error handling without exposing sensitive information.
+- Regular backups.
+
+Never store passwords in plain text.
+
+Never expose admin credentials.
+
+Never expose customer information through public endpoints.
+
+Implement privacy controls for customer information.
+
+Include:
+- Privacy policy.
+- Data collection notice.
+- Consent.
+- Data retention policy.
+- Data correction and deletion request process.
+
+Ensure the implementation is reviewed against applicable Rwanda data protection requirements before launch.
+
+---
+
+# PHASE 15: PERFORMANCE AND ACCESSIBILITY
+
+Optimize for users in Rwanda, including visitors using slower mobile connections.
+
+Requirements:
+
+- Mobile-first design.
+- Responsive layouts.
+- Optimized WebP or AVIF images where supported.
+- Lazy-loaded below-the-fold images.
+- Minimal JavaScript.
+- Efficient API requests.
+- Fast initial rendering.
+- Clear loading states.
+- Clear empty states.
+- Understandable errors.
+- Keyboard accessibility.
+- Accessible color contrast.
+- Proper form labels.
+- Large touch targets.
+- Readable typography.
+
+Do not require an account to browse products or submit an ordinary request.
+
+Do not make customers complete unnecessary steps.
+
+---
+
+# PHASE 16: TESTING AND QUALITY ASSURANCE
+
+Test the entire system, not just its appearance.
+
+## Product tests
+
+- Product listing loads.
+- Search works.
+- Category filtering works.
+- Product details load.
+- Product prices display correctly.
+- Unpublished products remain hidden.
+- Product requests attach the correct product ID.
+
+## Lead capture tests
+
+- Empty names are rejected.
+- Invalid phone numbers are rejected.
+- Valid Rwandan numbers are accepted.
+- Requests are saved.
+- References are generated.
+- Contact details remain hidden before submission.
+- Contact details are revealed only after successful database insertion.
+- Failed submissions do not reveal contact details.
+- Duplicate or spam submissions are appropriately handled.
+
+## Joining tests
+
+- Joining page displays correct information.
+- Requirements are editable.
+- Costs are accurate.
+- Joining application saves.
+- Referral URL works.
+- Missing referral URL is handled.
+- External registration is clearly identified.
+- Application status updates work.
+
+## Admin tests
+
+- Login works.
+- Unauthorized users cannot access admin pages.
+- Product creation works.
+- Product editing works.
+- Image uploading works.
+- Request management works.
+- Joining application management works.
+- Settings are saved.
+- Private contact settings remain protected.
+
+## SEO tests
+
+- Metadata is unique.
+- Sitemap is accessible.
+- Robots.txt is valid.
+- Canonical URLs work.
+- Product structured data is valid.
+- No private customer information is indexed.
+- Published product pages are crawlable.
+
+## Device tests
+
+Test:
+- Small Android smartphones.
+- Larger Android smartphones.
+- Tablets.
+- Desktop computers.
+
+Test real interactions, not screenshots alone.
+
+---
+
+# PHASE 17: DEVELOPMENT RULES
+
+1. Build a complete functional application.
+2. Do not stop at the homepage.
+3. Do not use mock buttons that do nothing.
+4. Do not use fake database records.
+5. Do not create fake products.
+6. Do not invent business facts.
+7. Do not hardcode referral links throughout the application.
+8. Do not hardcode private contact details in public components.
+9. Do not expose customer data.
+10. Do not break existing functionality if an existing project is being upgraded.
+11. Reuse existing working infrastructure when appropriate.
+12. Avoid unnecessary dependencies.
+13. Avoid duplicate features.
+14. Avoid complicated customer journeys.
+15. Keep the interface consistent.
+16. Ensure all important actions have proper loading, success and error states.
+17. Keep code maintainable.
+18. Test actual backend functionality.
+19. Do not claim an integration is complete unless it has actually been configured and tested.
+20. Do not declare the project production-ready until critical tests pass.
+
+If a necessary company detail is unavailable, create an admin-editable placeholder and clearly identify it as requiring verification.
+
+Never fill missing company information with fabricated content.
+
+---
+
+# PHASE 18: DEFINITION OF DONE
+
+The platform is only considered complete when all of these conditions are met:
+
+PUBLIC WEBSITE:
+- Homepage is complete.
+- Products catalogue works.
+- Individual product pages work.
+- Search and filtering work.
+- Joining pages work.
+- About page works.
+- Privacy and terms pages exist.
+- English and Kinyarwanda support works.
+
+PRODUCT REQUEST SYSTEM:
+- Short request form works.
+- Name is recorded.
+- Phone number is recorded.
+- Product is automatically attached.
+- Database saves the request.
+- Unique reference is generated.
+- Contact information remains protected before submission.
+- Post-submission WhatsApp continuation works.
+
+JOINING SYSTEM:
+- Requirements are displayed.
+- Costs are accurately displayed when verified.
+- Application form works.
+- Applicant information is saved.
+- Referral link is configurable.
+- External referral navigation works.
+- Application tracking works.
+
+ADMIN:
+- Secure authentication works.
+- Products can be managed.
+- Categories can be managed.
+- Requests can be managed.
+- Joining applications can be managed.
+- Contact details can be configured.
+- Referral link can be configured.
+- Website content can be edited.
+- Dashboard statistics are database-driven.
+
+SEO/AEO:
+- Technical SEO is implemented.
+- Product pages have unique metadata.
+- Sitemap works.
+- Structured data is accurate.
+- Important content is accessible to search engines.
+- FAQs answer real questions.
+
+SECURITY:
+- Customer records are private.
+- Admin routes are protected.
+- Contact gating is server-enforced.
+- Forms are validated.
+- Sensitive configuration is protected.
+
+MOBILE:
+- Website works on small screens.
+- Forms are easy to complete.
+- Navigation is understandable.
+- Images load efficiently.
+- Buttons are easy to tap.
+
+---
+
+# FINAL INSTRUCTION
+
+Build NN Market Rwanda as a real independent product marketing and customer-assistance business.
+
+The most important design principle is:
+
+**MAKE IT EASY FOR PEOPLE TO FIND WHAT THEY NEED, UNDERSTAND IT, REQUEST IT AND TAKE THE NEXT STEP WITHOUT NEEDING HELP.**
+
+Apply SPIN Selling, Challenger Sale, Gap Selling, Cost of Inaction, StoryBrand, Made to Stick, Traction and This Is Marketing throughout the content and customer journeys.
+
+Use these principles naturally:
+
+- Understand the customer's problem before presenting the product.
+- Make the customer the hero.
+- Explain real value clearly.
+- Use simple, memorable language.
+- Show relevant products and solutions.
+- Remove unnecessary decision-making.
+- Make the next step obvious.
+- Never use dishonest urgency or unsupported promises.
+
+The five-second understanding standard must apply to every important page.
+
+Deliver a complete working website with a functioning backend, database and secure admin dashboard.
+
+At the end, provide:
+1. Implemented features.
+2. Working customer journeys.
+3. Working admin functions.
+4. Database structure.
+5. Configured integrations.
+6. Test results.
+7. Missing business information.
+8. Remaining deployment requirements.
+
+Do not claim completion for features that are only visually implemented.
+
+Build for real customers and real business operations.
+:::

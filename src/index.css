@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --nn-gold: #A87936;
+    --nn-green: #26733E;
+    --nn-white: #FFFFFF;
+    --nn-ink: #252B25;
+    --nn-muted: #647067;
+    --nn-light-gold: #FBF7EF;
+    --nn-light-green: #F1F7F1;
+    --nn-border: #E9E7E1;
+    --nn-error: #C0392B;
+  }
+
+  html {
+    font-family: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #252B25;
+    background-color: #FFFFFF;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: #FFFFFF;
+    color: #252B25;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #26733E;
+    outline-offset: 2px;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
