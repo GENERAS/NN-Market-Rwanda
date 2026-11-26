@@ -79,20 +79,28 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 
         <p className="text-sm text-[#647067] line-clamp-2 mb-4 flex-1">{shortDesc}</p>
 
-        <div className="pt-3 border-t border-[#E9E7E1] flex items-center justify-between gap-3">
-          <div>
+        <div className="pt-3 border-t border-[#E9E7E1] space-y-3">
+          <div className="flex items-baseline justify-between gap-2">
             <div className="text-[15px] font-semibold text-[#252B25] tabular-nums">
               {formatPriceRwf(product.price_rwf, product.currency, lang)}
             </div>
-            <div className="text-xs text-[#647067] mt-0.5">{availLabel}</div>
+            <div className="text-xs text-[#647067] text-right">{availLabel}</div>
           </div>
 
-          <Link
-            to={`/products/${product.slug}`}
-            className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] text-sm font-semibold text-[#26733E] bg-[#F1F7F1] hover:bg-[#26733E] hover:text-white rounded-md transition-colors whitespace-nowrap shrink-0"
-          >
-            {t.catalog.viewDetails}
-          </Link>
+          <div className="grid grid-cols-2 gap-2">
+            <Link
+              to={`/products/${product.slug}`}
+              className="inline-flex items-center justify-center px-3 py-2.5 min-h-[44px] text-sm font-semibold text-[#252B25] bg-[#FBF7EF] border border-[#E9E7E1] hover:border-[#A87936] rounded-md transition-colors whitespace-nowrap"
+            >
+              {t.catalog.viewDetails}
+            </Link>
+            <Link
+              to={`/products/${product.slug}?action=request`}
+              className="inline-flex items-center justify-center px-3 py-2.5 min-h-[44px] text-sm font-semibold text-white bg-[#26733E] hover:bg-[#1e5c31] rounded-md transition-colors whitespace-nowrap"
+            >
+              {t.catalog.requestCta}
+            </Link>
+          </div>
         </div>
       </div>
     </article>

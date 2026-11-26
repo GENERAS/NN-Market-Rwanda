@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Product, ProductRequestConfirmation } from '../types';
-import { validateAndNormalizeRwandaPhone, validateCustomerName } from '../utils/validation';
+import { validateAndNormalizeRwandaPhone, validateCustomerName, validateOptionalEmail } from '../utils/validation';
 
 interface ProductRequestFormProps {
   attachedProduct?: Product | null;
@@ -19,6 +19,7 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [selectedProductId, setSelectedProductId] = useState(attachedProduct?.id || '');
   const [message, setMessage] = useState('');
   const [consentProcessing, setConsentProcessing] = useState(false);
@@ -53,6 +54,11 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
         phoneCheck.errorCode === 'REQUIRED' ? t.requestForm.errors.phoneRequired : t.requestForm.errors.phoneInvalid;
     }
 
+    const emailCheck = validateOptionalEmail(email);
+    if (!emailCheck.valid) {
+      errors.email = t.requestForm.errors.emailInvalid;
+    }
+
     if (!consentProcessing) {
       errors.consentProcessing = t.requestForm.errors.consentRequired;
     }
@@ -70,6 +76,7 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
         body: JSON.stringify({
           name: nameCheck.cleaned,
           phone,
+          email: emailCheck.normalized,
           productId: attachedProduct ? attachedProduct.id : selectedProductId || null,
           message,
           sourcePage: location.pathname,
@@ -161,6 +168,28 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
         {fieldErrors.phone && (
           <p role="alert" className="mt-1 text-xs font-medium text-[#C0392B]">
             {fieldErrors.phone}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="req-email" className="block text-sm font-semibold text-[#252B25] mb-1.5">
+          {t.requestForm.emailLabel}
+        </label>
+        <input
+          id="req-email"
+          name="email"
+          type="email"
+          inputMode="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={t.requestForm.emailPlaceholder}
+          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+        />
+        <p className="mt-1 text-xs text-[#647067]">{t.requestForm.emailHelp}</p>
+        {fieldErrors.email && (
+          <p role="alert" className="mt-1 text-xs font-medium text-[#C0392B]">
+            {fieldErrors.email}
           </p>
         )}
       </div>

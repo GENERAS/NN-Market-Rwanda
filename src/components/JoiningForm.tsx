@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { JoiningConfirmation } from '../types';
-import { validateAndNormalizeRwandaPhone, validateCustomerName } from '../utils/validation';
+import { validateAndNormalizeRwandaPhone, validateCustomerName, validateOptionalEmail } from '../utils/validation';
 
 export const JoiningForm: React.FC = () => {
   const { t } = useApp();
@@ -11,6 +11,7 @@ export const JoiningForm: React.FC = () => {
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [question, setQuestion] = useState('');
   const [consentProcessing, setConsentProcessing] = useState(false);
   const [consentMarketing, setConsentMarketing] = useState(false);
@@ -38,6 +39,11 @@ export const JoiningForm: React.FC = () => {
         phoneCheck.errorCode === 'REQUIRED' ? t.requestForm.errors.phoneRequired : t.requestForm.errors.phoneInvalid;
     }
 
+    const emailCheck = validateOptionalEmail(email);
+    if (!emailCheck.valid) {
+      errors.email = t.requestForm.errors.emailInvalid;
+    }
+
     if (!consentProcessing) {
       errors.consentProcessing = t.requestForm.errors.consentRequired;
     }
@@ -55,6 +61,7 @@ export const JoiningForm: React.FC = () => {
         body: JSON.stringify({
           fullName: nameCheck.cleaned,
           phone,
+          email: emailCheck.normalized,
           question,
           sourcePage: location.pathname,
           consentProcessing,
@@ -137,6 +144,28 @@ export const JoiningForm: React.FC = () => {
         {fieldErrors.phone && (
           <p role="alert" className="mt-1 text-xs font-medium text-[#C0392B]">
             {fieldErrors.phone}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="join-email" className="block text-sm font-semibold text-[#252B25] mb-1.5">
+          {t.join.emailLabel}
+        </label>
+        <input
+          id="join-email"
+          name="email"
+          type="email"
+          inputMode="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={t.join.emailPlaceholder}
+          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+        />
+        <p className="mt-1 text-xs text-[#647067]">{t.requestForm.emailHelp}</p>
+        {fieldErrors.email && (
+          <p role="alert" className="mt-1 text-xs font-medium text-[#C0392B]">
+            {fieldErrors.email}
           </p>
         )}
       </div>

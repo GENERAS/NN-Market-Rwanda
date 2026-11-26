@@ -8,6 +8,7 @@ interface RequestRow {
   reference_code: string;
   customer_name: string;
   phone_normalized: string;
+  customer_email?: string;
   product_name_snapshot: string;
   message: string;
   source_page: string;
@@ -22,6 +23,7 @@ interface ApplicationRow {
   reference_code: string;
   full_name: string;
   phone_normalized: string;
+  email?: string;
   question: string;
   status: string;
   referral_clicked: number;
@@ -33,6 +35,7 @@ interface ApplicationRow {
 interface CustomerRow {
   phone_normalized: string;
   latest_name: string;
+  latest_email?: string;
   request_count: number;
   application_count: number;
   marketing_opt_in: number;
@@ -161,11 +164,12 @@ export const AdminLeadsTab: React.FC<{
     const dateStamp = new Date().toISOString().split('T')[0];
     if (mode === 'requests') {
       const csv = buildCsvContent(
-        ['Reference', 'Customer Name', 'Phone', 'Product', 'Status', 'Source Page', 'Message', 'Internal Notes', 'Created At'],
+        ['Reference', 'Customer Name', 'Phone', 'Email', 'Product', 'Status', 'Source Page', 'Message', 'Internal Notes', 'Created At'],
         requests.map((r) => [
           r.reference_code,
           r.customer_name,
           r.phone_normalized,
+          r.customer_email || '',
           r.product_name_snapshot,
           r.status,
           r.source_page,
@@ -177,11 +181,12 @@ export const AdminLeadsTab: React.FC<{
       triggerCsvDownload(`nn-market-product-requests-${dateStamp}.csv`, csv);
     } else if (mode === 'applications') {
       const csv = buildCsvContent(
-        ['Reference', 'Full Name', 'Phone', 'Status', 'Referral Clicked', 'Question', 'Internal Notes', 'Created At'],
+        ['Reference', 'Full Name', 'Phone', 'Email', 'Status', 'Referral Clicked', 'Question', 'Internal Notes', 'Created At'],
         applications.map((a) => [
           a.reference_code,
           a.full_name,
           a.phone_normalized,
+          a.email || '',
           a.status,
           a.referral_clicked === 1 ? 'Yes' : 'No',
           a.question,
@@ -192,10 +197,11 @@ export const AdminLeadsTab: React.FC<{
       triggerCsvDownload(`nn-market-joining-applications-${dateStamp}.csv`, csv);
     } else {
       const csv = buildCsvContent(
-        ['Name', 'Phone', 'Product Requests', 'Joining Inquiries', 'Marketing Consent', 'Last Activity'],
+        ['Name', 'Phone', 'Email', 'Product Requests', 'Joining Inquiries', 'Marketing Consent', 'Last Activity'],
         customers.map((c) => [
           c.latest_name,
           c.phone_normalized,
+          c.latest_email || '',
           c.request_count,
           c.application_count,
           c.marketing_opt_in === 1 ? 'Opted in' : 'Request response only',
@@ -221,8 +227,8 @@ export const AdminLeadsTab: React.FC<{
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name or phone..."
-              className="min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
+              placeholder="Search name, phone, email..."
+              className="w-full sm:w-64 min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
             />
             <button
               type="button"
@@ -253,6 +259,7 @@ export const AdminLeadsTab: React.FC<{
                 <tr className="border-b border-[#E9E7E1] text-xs text-[#647067]">
                   <th className="py-2.5 pr-4 font-semibold">Name</th>
                   <th className="py-2.5 pr-4 font-semibold">Phone</th>
+                  <th className="py-2.5 pr-4 font-semibold">Email</th>
                   <th className="py-2.5 pr-4 font-semibold text-right">Requests</th>
                   <th className="py-2.5 pr-4 font-semibold text-right">Joining</th>
                   <th className="py-2.5 pr-4 font-semibold">Marketing Consent</th>
@@ -265,6 +272,7 @@ export const AdminLeadsTab: React.FC<{
                   <tr key={c.phone_normalized}>
                     <td className="py-3 pr-4 font-semibold text-[#252B25]">{c.latest_name}</td>
                     <td className="py-3 pr-4 tabular-nums text-[#252B25]">{c.phone_normalized}</td>
+                    <td className="py-3 pr-4 text-xs text-[#647067]">{c.latest_email || '—'}</td>
                     <td className="py-3 pr-4 text-right tabular-nums">{c.request_count}</td>
                     <td className="py-3 pr-4 text-right tabular-nums">{c.application_count}</td>
                     <td className="py-3 pr-4 text-xs">
@@ -335,8 +343,8 @@ export const AdminLeadsTab: React.FC<{
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, ref, phone..."
-            className="min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
+            placeholder="Search name, ref, phone, email..."
+            className="w-full sm:w-64 min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
           />
           <select
             value={statusFilter}
@@ -384,6 +392,9 @@ export const AdminLeadsTab: React.FC<{
                     </div>
                     <div className="text-base font-bold text-[#252B25]">
                       {r.customer_name} — <span className="tabular-nums text-[#26733E]">{r.phone_normalized}</span>
+                      {r.customer_email && (
+                        <span className="ml-2 text-xs font-normal text-[#647067]">· {r.customer_email}</span>
+                      )}
                     </div>
                     <div className="text-xs text-[#647067]">
                       Product: <strong>{r.product_name_snapshot}</strong> · Source: {r.source_page}
@@ -451,6 +462,9 @@ export const AdminLeadsTab: React.FC<{
                   </div>
                   <div className="text-base font-bold text-[#252B25]">
                     {a.full_name} — <span className="tabular-nums text-[#26733E]">{a.phone_normalized}</span>
+                    {a.email && (
+                      <span className="ml-2 text-xs font-normal text-[#647067]">· {a.email}</span>
+                    )}
                   </div>
                   <div className="text-xs text-[#647067]">
                     Referral link clicked: <strong>{a.referral_clicked === 1 ? 'Yes' : 'Not yet'}</strong>

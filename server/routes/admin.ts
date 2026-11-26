@@ -359,18 +359,26 @@ adminRouter.get('/overview', (_req: AuthenticatedRequest, res: Response) => {
     .prepare(
       `SELECT
          COUNT(*) as totalCustomers,
-         SUM(CASE WHEN total_touchpoints > 1 THEN 1 ELSE 0 END) as repeatCustomerCount
+         SUM(CASE WHEN total_touchpoints > 1 THEN 1 ELSE 0 END) as repeatCustomerCount,
+         SUM(CASE WHEN latest_email != '' THEN 1 ELSE 0 END) as emailsCollectedCount
        FROM (
-         SELECT phone_normalized, COUNT(*) as total_touchpoints
+         SELECT
+           phone_normalized,
+           COUNT(*) as total_touchpoints,
+           COALESCE(MAX(NULLIF(email, '')), '') as latest_email
          FROM (
-           SELECT phone_normalized FROM product_requests
+           SELECT phone_normalized, customer_email as email FROM product_requests
            UNION ALL
-           SELECT phone_normalized FROM joining_applications
+           SELECT phone_normalized, email FROM joining_applications
          )
          GROUP BY phone_normalized
        )`
     )
-    .get() as { totalCustomers: number; repeatCustomerCount: number | null };
+    .get() as {
+    totalCustomers: number;
+    repeatCustomerCount: number | null;
+    emailsCollectedCount: number | null;
+  };
 
   const funnel = computeFunnelMetrics({
     totalSiteViews,
@@ -416,6 +424,7 @@ adminRouter.get('/overview', (_req: AuthenticatedRequest, res: Response) => {
       productViews,
       totalCustomers: customerSummary?.totalCustomers || 0,
       repeatCustomerCount: customerSummary?.repeatCustomerCount || 0,
+      emailsCollectedCount: customerSummary?.emailsCollectedCount || 0,
       ...funnel,
     },
     topRequestedProducts,
@@ -747,9 +756,11 @@ adminRouter.get('/requests', (req: AuthenticatedRequest, res: Response) => {
     params.push(status);
   }
   if (q) {
-    where.push('(LOWER(reference_code) LIKE ? OR LOWER(customer_name) LIKE ? OR LOWER(phone_normalized) LIKE ? OR LOWER(product_name_snapshot) LIKE ?)');
+    where.push(
+      '(LOWER(reference_code) LIKE ? OR LOWER(customer_name) LIKE ? OR LOWER(phone_normalized) LIKE ? OR LOWER(customer_email) LIKE ? OR LOWER(product_name_snapshot) LIKE ?)'
+    );
     const p = `%${q}%`;
-    params.push(p, p, p, p);
+    params.push(p, p, p, p, p);
   }
 
   const rows = db
@@ -816,9 +827,9 @@ adminRouter.get('/applications', (req: AuthenticatedRequest, res: Response) => {
     params.push(status);
   }
   if (q) {
-    where.push('(LOWER(reference_code) LIKE ? OR LOWER(full_name) LIKE ? OR LOWER(phone_normalized) LIKE ?)');
+    where.push('(LOWER(reference_code) LIKE ? OR LOWER(full_name) LIKE ? OR LOWER(phone_normalized) LIKE ? OR LOWER(email) LIKE ?)');
     const p = `%${q}%`;
-    params.push(p, p, p);
+    params.push(p, p, p, p);
   }
 
   const rows = db
@@ -885,24 +896,25 @@ adminRouter.get('/customers', (req: AuthenticatedRequest, res: Response) => {
   let sql = `SELECT
        phone_normalized,
        MAX(name) as latest_name,
+       COALESCE(MAX(NULLIF(email, '')), '') as latest_email,
        SUM(req_cnt) as request_count,
        SUM(app_cnt) as application_count,
        MAX(marketing_opt_in) as marketing_opt_in,
        MAX(last_seen) as last_activity
      FROM (
-       SELECT phone_normalized, customer_name as name, 1 as req_cnt, 0 as app_cnt, consent_marketing as marketing_opt_in, created_at as last_seen
+       SELECT phone_normalized, customer_name as name, customer_email as email, 1 as req_cnt, 0 as app_cnt, consent_marketing as marketing_opt_in, created_at as last_seen
        FROM product_requests
        UNION ALL
-       SELECT phone_normalized, full_name as name, 0 as req_cnt, 1 as app_cnt, consent_marketing as marketing_opt_in, created_at as last_seen
+       SELECT phone_normalized, full_name as name, email, 0 as req_cnt, 1 as app_cnt, consent_marketing as marketing_opt_in, created_at as last_seen
        FROM joining_applications
      )
      GROUP BY phone_normalized`;
 
   const params: string[] = [];
   if (q) {
-    sql = `SELECT * FROM (${sql}) WHERE LOWER(latest_name) LIKE ? OR LOWER(phone_normalized) LIKE ?`;
+    sql = `SELECT * FROM (${sql}) WHERE LOWER(latest_name) LIKE ? OR LOWER(phone_normalized) LIKE ? OR LOWER(latest_email) LIKE ?`;
     const pattern = `%${q}%`;
-    params.push(pattern, pattern);
+    params.push(pattern, pattern, pattern);
   }
   sql += ' ORDER BY last_activity DESC';
 

@@ -14,6 +14,7 @@ import {
   validateAndNormalizeRwandaPhone,
   validateCustomerName,
   validateExternalReferralUrl,
+  validateOptionalEmail,
 } from '../../src/utils/validation';
 
 const publicRouter = Router();
@@ -251,6 +252,16 @@ publicRouter.post('/product-requests', (req: Request, res: Response) => {
     return;
   }
 
+  const emailCheck = validateOptionalEmail(String(body.email || ''));
+  if (!emailCheck.valid) {
+    res.status(400).json({
+      errorCode: 'INVALID_EMAIL',
+      field: 'email',
+      error: 'Please enter a valid email address or leave this field blank.',
+    });
+    return;
+  }
+
   if (body.consentProcessing !== true) {
     res.status(400).json({
       errorCode: 'CONSENT_REQUIRED',
@@ -310,17 +321,18 @@ publicRouter.post('/product-requests', (req: Request, res: Response) => {
     const id = crypto.randomUUID();
     db.prepare(
       `INSERT INTO product_requests (
-        id, reference_code, customer_name, phone_normalized, phone_raw,
+        id, reference_code, customer_name, phone_normalized, phone_raw, customer_email,
         product_id, product_name_snapshot, message, source_page,
         consent_processing, consent_marketing, status, internal_notes, ip_hash,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 'New', '', ?, ?, ?)`
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 'New', '', ?, ?, ?)`
     ).run(
       id,
       referenceCode,
       nameCheck.cleaned,
       phoneCheck.normalized,
       sanitizePlainText(String(body.phone || ''), 40),
+      emailCheck.normalized,
       resolvedProductId,
       resolvedProductName,
       message,
@@ -394,6 +406,16 @@ publicRouter.post('/joining-applications', (req: Request, res: Response) => {
     return;
   }
 
+  const emailCheck = validateOptionalEmail(String(body.email || ''));
+  if (!emailCheck.valid) {
+    res.status(400).json({
+      errorCode: 'INVALID_EMAIL',
+      field: 'email',
+      error: 'Please enter a valid email address or leave this field blank.',
+    });
+    return;
+  }
+
   if (body.consentProcessing !== true) {
     res.status(400).json({
       errorCode: 'CONSENT_REQUIRED',
@@ -426,16 +448,17 @@ publicRouter.post('/joining-applications', (req: Request, res: Response) => {
     referenceCode = generateReferenceCode('NNJ');
     db.prepare(
       `INSERT INTO joining_applications (
-        id, reference_code, full_name, phone_normalized, phone_raw,
+        id, reference_code, full_name, phone_normalized, phone_raw, email,
         question, source_page, consent_processing, consent_marketing,
         status, referral_clicked, internal_notes, ip_hash, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, 'New', 0, '', ?, ?, ?)`
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 'New', 0, '', ?, ?, ?)`
     ).run(
       crypto.randomUUID(),
       referenceCode,
       nameCheck.cleaned,
       phoneCheck.normalized,
       sanitizePlainText(String(body.phone || ''), 40),
+      emailCheck.normalized,
       question,
       sourcePage,
       consentMarketing,

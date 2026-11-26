@@ -145,12 +145,26 @@ test('API end-to-end security, contact gating, product visibility, and admin wor
   assert.equal(badReq.json.whatsappUrl, undefined);
   assert.equal(badReq.json.contactAuthorized, undefined);
 
-  // 6. Valid product request saves to DB and reveals updated WhatsApp URL
+  // 5b. Invalid optional email is rejected cleanly
+  const badEmailReq = await requestJson('/api/public/product-requests', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: 'Jean',
+      phone: '078 965 4321',
+      email: 'not-an-email',
+      consentProcessing: true,
+    }),
+  });
+  assert.equal(badEmailReq.status, 400);
+  assert.equal(badEmailReq.json.field, 'email');
+
+  // 6. Valid product request with optional email saves to DB and reveals updated WhatsApp URL
   const goodReq = await requestJson('/api/public/product-requests', {
     method: 'POST',
     body: JSON.stringify({
       name: 'Marie Claire',
       phone: '078 965 4321',
+      email: 'Marie.Claire@Example.RW',
       productId: 'prod-liver-support',
       consentProcessing: true,
       sourcePage: '/products/liver-support',
@@ -161,12 +175,13 @@ test('API end-to-end security, contact gating, product visibility, and admin wor
   assert.match(String(goodReq.json.referenceCode), /^NNR-/);
   assert.ok(String(goodReq.json.whatsappUrl).startsWith('https://wa.me/250788123456?text='));
 
-  // 7. Valid joining application saves to DB and returns configured referral URL
+  // 7. Valid joining application with optional email saves to DB and returns configured referral URL
   const goodJoin = await requestJson('/api/public/joining-applications', {
     method: 'POST',
     body: JSON.stringify({
       fullName: 'Eric Ndayisaba',
       phone: '+250722334455',
+      email: 'eric.ndayisaba@example.com',
       consentProcessing: true,
       sourcePage: '/join',
     }),
@@ -174,6 +189,11 @@ test('API end-to-end security, contact gating, product visibility, and admin wor
   assert.equal(goodJoin.status, 201);
   assert.match(String(goodJoin.json.referenceCode), /^NNJ-/);
   assert.equal(goodJoin.json.referralUrl, 'https://portal.example.org/join/rw-agent');
+
+  // Verify public bootstrap STILL leaks zero customer emails
+  const bootFinalCheck = await requestJson('/api/public/bootstrap');
+  assert.equal(bootFinalCheck.text.includes('marie.claire@example.rw'), false);
+  assert.equal(bootFinalCheck.text.includes('eric.ndayisaba@example.com'), false);
 
   // 8. Admin overview shows real database-driven counts
   const overview = await requestJson('/api/admin/overview', {
@@ -251,13 +271,21 @@ test('API end-to-end security, contact gating, product visibility, and admin wor
   assert.equal(statsAfter.referralClickRate, 100);
   assert.equal(statsAfter.completedRequests, 1);
   assert.equal(statsAfter.repeatCustomerCount, 1);
+  assert.equal(statsAfter.emailsCollectedCount, 2);
   assert.ok(Array.isArray(overviewAfter.json.topRequestedProducts));
 
-  // 11. Customer search & privacy deletion workflow
+  // 11. Customer search (by name and by email) & privacy deletion workflow
   const custSearch = await requestJson('/api/admin/customers?q=Marie', {
     headers: { Authorization: `Bearer ${adminToken}` },
   });
-  assert.equal((custSearch.json.items as unknown[]).length, 1);
+  const custItems = custSearch.json.items as Array<{ latest_email: string }>;
+  assert.equal(custItems.length, 1);
+  assert.equal(custItems[0].latest_email, 'marie.claire@example.rw');
+
+  const emailSearch = await requestJson('/api/admin/customers?q=eric.ndayisaba@example.com', {
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  assert.equal((emailSearch.json.items as unknown[]).length, 1);
 
   const delCust = await requestJson(`/api/admin/customers/${encodeURIComponent('+250789654321')}`, {
     method: 'DELETE',

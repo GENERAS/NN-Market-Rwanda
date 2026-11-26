@@ -26,6 +26,7 @@ interface OverviewStats {
   productViews: number;
   totalCustomers: number;
   repeatCustomerCount: number;
+  emailsCollectedCount: number;
   requestConversionRate: number;
   salesConversionRate: number;
   referralClickRate: number;
@@ -176,7 +177,7 @@ export const AdminDashboardPage: React.FC = () => {
                         Measured strictly from anonymous page/product views, submitted requests, referral clicks, and verified completions.
                       </p>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                       {[
                         { label: 'Total Site Views', val: String(stats.totalSiteViews) },
                         { label: 'Product Views', val: String(stats.productViews) },
@@ -189,6 +190,7 @@ export const AdminDashboardPage: React.FC = () => {
                           label: 'Customers / Repeat',
                           val: `${stats.totalCustomers} (${stats.repeatCustomerCount} repeat)`,
                         },
+                        { label: 'Emails Collected', val: String(stats.emailsCollectedCount) },
                       ].map((metric) => (
                         <div key={metric.label} className="p-4 rounded-lg bg-[#FBF7EF]/60 border border-[#E9E7E1]">
                           <div className="text-xs text-[#647067] mb-1">{metric.label}</div>

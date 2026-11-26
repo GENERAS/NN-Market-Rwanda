@@ -95,6 +95,26 @@ export function validateCustomerName(rawName: string): NameValidationResult {
   return { valid: true, cleaned };
 }
 
+export interface EmailValidationResult {
+  valid: boolean;
+  normalized: string;
+  errorCode?: 'INVALID_EMAIL';
+}
+
+export function validateOptionalEmail(rawEmail: string): EmailValidationResult {
+  const trimmed = (rawEmail || '').trim();
+  if (!trimmed) {
+    return { valid: true, normalized: '' };
+  }
+  if (trimmed.length > 160 || /[<>]/.test(trimmed) || /\s/.test(trimmed)) {
+    return { valid: false, normalized: '', errorCode: 'INVALID_EMAIL' };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) {
+    return { valid: false, normalized: '', errorCode: 'INVALID_EMAIL' };
+  }
+  return { valid: true, normalized: trimmed.toLowerCase() };
+}
+
 export function validateExternalReferralUrl(rawUrl: string): UrlValidationResult {
   const trimmed = (rawUrl || '').trim();
   if (!trimmed) {

@@ -133,6 +133,7 @@ export function initializeSchema(db: DatabaseSync): void {
       customer_name TEXT NOT NULL,
       phone_normalized TEXT NOT NULL,
       phone_raw TEXT NOT NULL,
+      customer_email TEXT NOT NULL DEFAULT '',
       product_id TEXT,
       product_name_snapshot TEXT NOT NULL DEFAULT '',
       message TEXT NOT NULL DEFAULT '',
@@ -153,6 +154,7 @@ export function initializeSchema(db: DatabaseSync): void {
       full_name TEXT NOT NULL,
       phone_normalized TEXT NOT NULL,
       phone_raw TEXT NOT NULL,
+      email TEXT NOT NULL DEFAULT '',
       question TEXT NOT NULL DEFAULT '',
       source_page TEXT NOT NULL DEFAULT '/join',
       consent_processing INTEGER NOT NULL DEFAULT 0,
@@ -238,6 +240,18 @@ export function initializeSchema(db: DatabaseSync): void {
     db.exec("ALTER TABLE users ADD COLUMN phone_normalized TEXT NOT NULL DEFAULT ''");
   }
   db.exec('CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone_normalized)');
+
+  const reqCols = db.prepare('PRAGMA table_info(product_requests)').all() as Array<{ name: string }>;
+  if (!reqCols.some((col) => col.name === 'customer_email')) {
+    db.exec("ALTER TABLE product_requests ADD COLUMN customer_email TEXT NOT NULL DEFAULT ''");
+  }
+  db.exec('CREATE INDEX IF NOT EXISTS idx_requests_email ON product_requests(customer_email)');
+
+  const joinCols = db.prepare('PRAGMA table_info(joining_applications)').all() as Array<{ name: string }>;
+  if (!joinCols.some((col) => col.name === 'email')) {
+    db.exec("ALTER TABLE joining_applications ADD COLUMN email TEXT NOT NULL DEFAULT ''");
+  }
+  db.exec('CREATE INDEX IF NOT EXISTS idx_joining_email ON joining_applications(email)');
 }
 
 function seedInitialData(db: DatabaseSync): void {

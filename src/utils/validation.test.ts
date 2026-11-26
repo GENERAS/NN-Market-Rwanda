@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   validateAndNormalizeRwandaPhone,
   validateCustomerName,
+  validateOptionalEmail,
   validateExternalReferralUrl,
   formatPriceRwf,
   slugify,
@@ -54,6 +55,18 @@ test('validates customer names safely', () => {
     valid: true,
     cleaned: 'Jean Bosco',
   });
+});
+
+test('validates optional customer email addresses cleanly', () => {
+  assert.deepEqual(validateOptionalEmail(''), { valid: true, normalized: '' });
+  assert.deepEqual(validateOptionalEmail('   '), { valid: true, normalized: '' });
+  assert.deepEqual(validateOptionalEmail('  Aline.Uwimana@Example.RW '), {
+    valid: true,
+    normalized: 'aline.uwimana@example.rw',
+  });
+  assert.equal(validateOptionalEmail('not-an-email').valid, false);
+  assert.equal(validateOptionalEmail('bad <script>@example.com').valid, false);
+  assert.equal(validateOptionalEmail('user@localhost').valid, false);
 });
 
 test('validates referral URLs and blocks unsafe schemes and local hosts', () => {

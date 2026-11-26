@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, Info } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Faq, Product } from '../types';
@@ -11,8 +11,9 @@ import { fetchPublicProductDetail } from '../utils/publicCatalogClient';
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
   const { lang, t } = useApp();
-  const requestSectionRef = useRef<HTMLDivElement | null>(null);
+  const requestSectionRef = useRef<HTMLElement | null>(null);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [faqs, setFaqs] = useState<Faq[]>([]);
@@ -47,6 +48,17 @@ export const ProductDetailPage: React.FC = () => {
       cancelled = true;
     };
   }, [slug]);
+
+  const wantsRequestFocus = searchParams.get('action') === 'request';
+  useEffect(() => {
+    if (!loading && product && (wantsRequestFocus || window.location.hash === '#request-form')) {
+      const frame = requestAnimationFrame(() => {
+        requestSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('req-name')?.focus({ preventScroll: true });
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [loading, product, wantsRequestFocus]);
 
   if (loading) {
     return (
@@ -140,18 +152,19 @@ export const ProductDetailPage: React.FC = () => {
               <div className="text-xl font-bold text-[#26733E] tabular-nums mb-4">
                 {formatPriceRwf(product.price_rwf, product.currency, lang)}
               </div>
-              <p className="text-base text-[#252B25] leading-relaxed mb-4">{shortDesc}</p>
-              <p className="text-sm sm:text-base text-[#647067] leading-relaxed whitespace-pre-line">{fullDesc}</p>
+              <p className="text-base text-[#252B25] leading-relaxed mb-5">{shortDesc}</p>
 
-              <div className="mt-6 lg:hidden">
+              <div className="mb-6">
                 <button
                   type="button"
                   onClick={scrollToForm}
-                  className="w-full min-h-[48px] px-6 py-3.5 text-base font-semibold text-white bg-[#26733E] hover:bg-[#1e5c31] rounded-md"
+                  className="inline-flex items-center justify-center w-full sm:w-auto min-h-[48px] px-7 py-3.5 text-base font-semibold text-white bg-[#26733E] hover:bg-[#1e5c31] rounded-md transition-colors"
                 >
                   {t.productDetail.requestButton}
                 </button>
               </div>
+
+              <p className="text-sm sm:text-base text-[#647067] leading-relaxed whitespace-pre-line">{fullDesc}</p>
             </div>
 
             {/* Specifications Table */}
@@ -211,7 +224,7 @@ export const ProductDetailPage: React.FC = () => {
           </div>
 
           {/* Right: Prominent Request CTA & Attached Product Request Form */}
-          <aside ref={requestSectionRef} className="lg:col-span-5 lg:sticky lg:top-24">
+          <aside id="request-form" ref={requestSectionRef} className="lg:col-span-5 lg:sticky lg:top-24 scroll-mt-24">
             <div className="border border-[#E9E7E1] rounded-lg p-6 bg-white">
               <div className="mb-5 pb-4 border-b border-[#E9E7E1]">
                 <h2 className="text-xl font-bold text-[#252B25]">{t.productDetail.requestButton}</h2>
