@@ -27,8 +27,15 @@ export function createApp() {
   app.use(express.json({ limit: '2mb' }));
 
   // Serve uploaded product images safely
-  const uploadsDir = path.resolve(process.cwd(), 'public', 'uploads');
-  fs.mkdirSync(uploadsDir, { recursive: true });
+  let uploadsDir = process.env.VERCEL
+    ? path.resolve('/tmp', 'uploads')
+    : path.resolve(process.cwd(), 'public', 'uploads');
+  try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  } catch {
+    uploadsDir = path.resolve('/tmp', 'uploads');
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
   app.use('/uploads', express.static(uploadsDir, { maxAge: '7d' }));
 
   // Serve generated/static src/assets images in both dev and prod

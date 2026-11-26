@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext';
 import { Product } from '../types';
 import { ProductCard } from '../components/ProductCard';
 import { SeoHead } from '../components/SeoHead';
+import { fetchPublicProducts } from '../utils/publicCatalogClient';
 
 export const ProductsPage: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
@@ -40,16 +41,13 @@ export const ProductsPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const params = new URLSearchParams({
+        const data = await fetchPublicProducts({
           q: debouncedQuery,
           category: activeCategory,
           sort,
-          page: String(page),
-          limit: '9',
+          page,
+          limit: 12,
         });
-        const res = await fetch(`/api/public/products?${params.toString()}`);
-        if (!res.ok) throw new Error('Unable to load products.');
-        const data = await res.json();
         if (!cancelled) {
           setProducts(data.items || []);
           setTotal(data.total || 0);

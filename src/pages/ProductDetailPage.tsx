@@ -7,6 +7,7 @@ import { formatPriceRwf } from '../utils/validation';
 import { ProductCard, ProductImage } from '../components/ProductCard';
 import { ProductRequestForm } from '../components/ProductRequestForm';
 import { SeoHead } from '../components/SeoHead';
+import { fetchPublicProductDetail } from '../utils/publicCatalogClient';
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -25,17 +26,15 @@ export const ProductDetailPage: React.FC = () => {
       setLoading(true);
       setNotFound(false);
       try {
-        const res = await fetch(`/api/public/products/${encodeURIComponent(slug || '')}`);
-        if (res.status === 404) {
-          if (!cancelled) setNotFound(true);
-          return;
-        }
-        if (!res.ok) throw new Error('Failed to load product');
-        const data = await res.json();
+        const data = await fetchPublicProductDetail(slug || '');
         if (!cancelled) {
-          setProduct(data.product);
-          setFaqs(data.faqs || []);
-          setRelated(data.relatedProducts || []);
+          if (!data) {
+            setNotFound(true);
+          } else {
+            setProduct(data.product);
+            setFaqs(data.faqs || []);
+            setRelated(data.relatedProducts || []);
+          }
         }
       } catch {
         if (!cancelled) setNotFound(true);

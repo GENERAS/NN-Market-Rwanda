@@ -61,10 +61,12 @@ test('API end-to-end security, contact gating, product visibility, and admin wor
   assert.equal(settings.n_nutrition_referral_url, undefined);
   assert.equal(boot.text.includes('794144738'), false);
 
-  // 2. Unpublished products remain hidden from public catalog & detail endpoints
-  const catalog = await requestJson('/api/public/products');
+  // 2. Unpublished products remain hidden from public catalog & detail endpoints, while all 18 published products load
+  const catalog = await requestJson('/api/public/products?limit=24');
   assert.equal(catalog.status, 200);
   const items = catalog.json.items as Array<{ slug: string }>;
+  assert.equal(catalog.json.total, 18);
+  assert.equal(items.length, 18);
   assert.equal(items.some((p) => p.slug === 'internal-catalog-draft'), false);
   const hiddenDetail = await requestJson('/api/public/products/internal-catalog-draft');
   assert.equal(hiddenDetail.status, 404);

@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Language, PublicBootstrap } from '../types';
 import { getTranslations } from '../i18n/translations';
+import { fetchPublicBootstrap } from '../utils/publicCatalogClient';
 
 interface AdminUser {
   id: string;
@@ -55,9 +56,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setLoadingBootstrap(true);
     setBootstrapError(null);
     try {
-      const res = await fetch('/api/public/bootstrap');
-      if (!res.ok) throw new Error('Unable to load storefront data.');
-      const data = (await res.json()) as PublicBootstrap;
+      const data = await fetchPublicBootstrap();
       setBootstrap(data);
     } catch (err) {
       setBootstrapError(err instanceof Error ? err.message : 'Network error');

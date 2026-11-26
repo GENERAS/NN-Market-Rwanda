@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext';
 import { Product } from '../types';
 import { ProductRequestForm } from '../components/ProductRequestForm';
 import { SeoHead } from '../components/SeoHead';
+import { fetchPublicProducts } from '../utils/publicCatalogClient';
 
 export const FaqPage: React.FC = () => {
   const { lang, t, bootstrap } = useApp();
@@ -142,8 +143,7 @@ export const RequestAndContactPage: React.FC<{ mode?: 'request' | 'contact' }> =
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetch('/api/public/products?limit=24')
-      .then((r) => (r.ok ? r.json() : { items: [] }))
+    fetchPublicProducts({ limit: 24 })
       .then((d) => setProducts(d.items || []))
       .catch(() => {});
   }, []);

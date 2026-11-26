@@ -20,11 +20,27 @@ import {
   validateExternalReferralUrl,
 } from '../../src/utils/validation';
 
+import os from 'node:os';
+
 const adminRouter = Router();
 const loginLimiter = new SlidingWindowRateLimiter(10, 15 * 60 * 1000);
 
-const UPLOADS_DIR = path.resolve(process.cwd(), 'public', 'uploads');
-fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+function resolveUploadsDir(): string {
+  const preferred = process.env.VERCEL
+    ? path.join(os.tmpdir(), 'uploads')
+    : path.resolve(process.cwd(), 'public', 'uploads');
+  try {
+    fs.mkdirSync(preferred, { recursive: true });
+    fs.accessSync(preferred, fs.constants.W_OK);
+    return preferred;
+  } catch {
+    const fallback = path.join(os.tmpdir(), 'uploads');
+    fs.mkdirSync(fallback, { recursive: true });
+    return fallback;
+  }
+}
+
+const UPLOADS_DIR = resolveUploadsDir();
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
