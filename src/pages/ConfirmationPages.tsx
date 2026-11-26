@@ -175,6 +175,17 @@ export const JoinConfirmedPage: React.FC = () => {
                 <ExternalLink className="w-4 h-4" aria-hidden="true" />
               </a>
               <p className="text-xs text-[#647067] leading-relaxed">{t.join.success.externalNotice}</p>
+              {confirmation.assistanceWhatsappUrl && (
+                <a
+                  href={confirmation.assistanceWhatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] rounded-md bg-[#FBF7EF] hover:bg-[#f4ebd8] border border-[#E9E7E1] text-[#252B25] text-sm font-semibold transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4 text-[#26733E]" aria-hidden="true" />
+                  {t.join.success.assistanceButton}
+                </a>
+              )}
             </div>
           ) : (
             <div className="p-4 rounded-md bg-[#FBF7EF] border border-[#E9E7E1] space-y-3">

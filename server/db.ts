@@ -209,6 +209,15 @@ export function initializeSchema(db: DatabaseSync): void {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
     );
 
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id TEXT PRIMARY KEY,
+      event_type TEXT NOT NULL,
+      path TEXT NOT NULL,
+      product_id TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+    );
+
     CREATE INDEX IF NOT EXISTS idx_products_slug ON products(slug);
     CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
     CREATE INDEX IF NOT EXISTS idx_products_published ON products(is_published, is_archived);
@@ -220,6 +229,8 @@ export function initializeSchema(db: DatabaseSync): void {
     CREATE INDEX IF NOT EXISTS idx_joining_phone ON joining_applications(phone_normalized);
     CREATE INDEX IF NOT EXISTS idx_joining_status ON joining_applications(status);
     CREATE INDEX IF NOT EXISTS idx_joining_created ON joining_applications(created_at);
+    CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics_events(event_type);
+    CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
   `);
 
   const userCols = db.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>;

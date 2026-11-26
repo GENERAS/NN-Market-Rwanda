@@ -492,4 +492,42 @@ publicRouter.post('/joining-applications/:referenceCode/referral-click', (req: R
   res.json({ ok: true });
 });
 
+const viewLimiter = new SlidingWindowRateLimiter(120, 5 * 60 * 1000);
+
+publicRouter.post('/analytics/view', (req: Request, res: Response) => {
+  const ip = getClientIp(req);
+  const rate = viewLimiter.check(`view:${ip}`);
+  if (!rate.allowed) {
+    res.status(204).end();
+    return;
+  }
+
+  const body = req.body || {};
+  const eventType = body.eventType === 'product_view' ? 'product_view' : 'page_view';
+  const cleanPath = sanitizePlainText(String(body.path || '/'), 200) || '/';
+  const productSlug = sanitizePlainText(String(body.productSlug || ''), 120);
+
+  if (cleanPath.startsWith('/admin')) {
+    res.status(204).end();
+    return;
+  }
+
+  const db = getDb();
+  let productId: string | null = null;
+  if (eventType === 'product_view' && productSlug) {
+    const prod = db
+      .prepare('SELECT id FROM products WHERE slug = ? AND is_published = 1 AND is_archived = 0')
+      .get(productSlug) as { id: string } | undefined;
+    if (prod) {
+      productId = prod.id;
+    }
+  }
+
+  db.prepare(
+    'INSERT INTO analytics_events (id, event_type, path, product_id, created_at) VALUES (?, ?, ?, ?, ?)'
+  ).run(crypto.randomUUID(), eventType, cleanPath, productId, new Date().toISOString());
+
+  res.status(204).end();
+});
+
 export default publicRouter;

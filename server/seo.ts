@@ -100,8 +100,18 @@ export function injectSeoHtml(html: string, reqPath: string, baseUrl: string): s
   const cleanPath = reqPath.split('?')[0] || '/';
   const canonicalUrl = `${baseUrl}${cleanPath}`;
 
-  let title = 'NN Market Rwanda — N-Nutrition Products & Referral Assistance';
+  const seoTitleSetting = db
+    .prepare("SELECT value FROM website_settings WHERE key = 'seo_default_title' AND is_private = 0")
+    .get() as { value?: string } | undefined;
+  const seoDescSetting = db
+    .prepare("SELECT value FROM website_settings WHERE key = 'seo_default_description' AND is_private = 0")
+    .get() as { value?: string } | undefined;
+
+  let title =
+    (seoTitleSetting?.value || '').trim() ||
+    'NN Market Rwanda — N-Nutrition Products & Referral Assistance';
   let description =
+    (seoDescSetting?.value || '').trim() ||
     'Discover available N-Nutrition nutrition and wellness products in Rwanda, submit a request, and learn how to join through an independent marketing agent.';
   let robotsMeta = 'index, follow';
 

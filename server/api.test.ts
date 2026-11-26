@@ -192,4 +192,83 @@ test('API end-to-end security, contact gating, product visibility, and admin wor
   assert.equal(sitemapRes.status, 200);
   assert.ok(sitemapXml.includes('/products/liver-support'));
   assert.equal(sitemapXml.includes('/products/internal-catalog-draft'), false);
+
+  // 10. Anonymous analytics view tracking + referral click + status completion -> real funnel metrics
+  await requestJson('/api/public/analytics/view', {
+    method: 'POST',
+    body: JSON.stringify({ eventType: 'page_view', path: '/' }),
+  });
+  await requestJson('/api/public/analytics/view', {
+    method: 'POST',
+    body: JSON.stringify({ eventType: 'product_view', path: '/products/liver-support', productSlug: 'liver-support' }),
+  });
+
+  // Repeat request from same customer phone triggers repeat customer detection
+  const repeatReq = await requestJson('/api/public/product-requests', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: 'Marie Claire',
+      phone: '078 965 4321',
+      productId: 'prod-golden-defense-tea',
+      consentProcessing: true,
+      sourcePage: '/products/golden-defense-tea',
+    }),
+  });
+  assert.equal(repeatReq.status, 201);
+
+  const reqList = await requestJson('/api/admin/requests', {
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  const reqItems = reqList.json.items as Array<{ id: string }>;
+  assert.equal(reqItems.length, 3);
+
+  const markCompleted = await requestJson(`/api/admin/requests/${reqItems[0].id}`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${adminToken}` },
+    body: JSON.stringify({ status: 'Completed', internal_notes: 'Confirmed delivery in Kigali' }),
+  });
+  assert.equal(markCompleted.status, 200);
+
+  // Track referral click and mark joining application Completed
+  const refClick = await requestJson(`/api/public/joining-applications/${goodJoin.json.referenceCode}/referral-click`, {
+    method: 'POST',
+  });
+  assert.equal(refClick.status, 200);
+
+  const appList = await requestJson('/api/admin/applications', {
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  const appItems = appList.json.items as Array<{ id: string; referral_clicked: number }>;
+  assert.equal(appItems[0].referral_clicked, 1);
+
+  const overviewAfter = await requestJson('/api/admin/overview', {
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  const statsAfter = overviewAfter.json.stats as Record<string, number>;
+  assert.equal(statsAfter.totalSiteViews, 2);
+  assert.equal(statsAfter.productViews, 1);
+  assert.equal(statsAfter.referralClickCount, 1);
+  assert.equal(statsAfter.referralClickRate, 100);
+  assert.equal(statsAfter.completedRequests, 1);
+  assert.equal(statsAfter.repeatCustomerCount, 1);
+  assert.ok(Array.isArray(overviewAfter.json.topRequestedProducts));
+
+  // 11. Customer search & privacy deletion workflow
+  const custSearch = await requestJson('/api/admin/customers?q=Marie', {
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  assert.equal((custSearch.json.items as unknown[]).length, 1);
+
+  const delCust = await requestJson(`/api/admin/customers/${encodeURIComponent('+250789654321')}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  assert.equal(delCust.status, 200);
+  assert.equal(delCust.json.deletedRequests, 2);
+
+  // Confirm deleted customer no longer appears in directory
+  const custAfter = await requestJson('/api/admin/customers?q=Marie', {
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  assert.equal((custAfter.json.items as unknown[]).length, 0);
 });

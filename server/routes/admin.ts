@@ -6,12 +6,14 @@ import multer from 'multer';
 import { getDb, writeAuditLog } from '../db';
 import {
   createSessionToken,
+  hashIp,
   hashPassword,
   SlidingWindowRateLimiter,
   verifyAdminPasscodeOverride,
   verifyPassword,
   verifySessionToken,
 } from '../security';
+import { computeFunnelMetrics } from '../../shared/analytics';
 import {
   buildWhatsAppUrl,
   sanitizePlainText,
@@ -341,9 +343,57 @@ adminRouter.get('/overview', (_req: AuthenticatedRequest, res: Response) => {
   const newApplications = (
     db.prepare("SELECT COUNT(*) as c FROM joining_applications WHERE status = 'New'").get() as { c: number }
   ).c;
+  const referralClickCount = (
+    db.prepare('SELECT COUNT(*) as c FROM joining_applications WHERE referral_clicked = 1').get() as { c: number }
+  ).c;
   const completedApplications = (
     db.prepare("SELECT COUNT(*) as c FROM joining_applications WHERE status = 'Completed'").get() as { c: number }
   ).c;
+
+  const totalSiteViews = (db.prepare('SELECT COUNT(*) as c FROM analytics_events').get() as { c: number }).c;
+  const productViews = (
+    db.prepare("SELECT COUNT(*) as c FROM analytics_events WHERE event_type = 'product_view'").get() as { c: number }
+  ).c;
+
+  const customerSummary = db
+    .prepare(
+      `SELECT
+         COUNT(*) as totalCustomers,
+         SUM(CASE WHEN total_touchpoints > 1 THEN 1 ELSE 0 END) as repeatCustomerCount
+       FROM (
+         SELECT phone_normalized, COUNT(*) as total_touchpoints
+         FROM (
+           SELECT phone_normalized FROM product_requests
+           UNION ALL
+           SELECT phone_normalized FROM joining_applications
+         )
+         GROUP BY phone_normalized
+       )`
+    )
+    .get() as { totalCustomers: number; repeatCustomerCount: number | null };
+
+  const funnel = computeFunnelMetrics({
+    totalSiteViews,
+    productViews,
+    totalRequests,
+    completedRequests,
+    totalApplications,
+    referralClickCount,
+    completedApplications,
+  });
+
+  const topRequestedProducts = db
+    .prepare(
+      `SELECT
+         product_name_snapshot as product_name,
+         COUNT(*) as request_count,
+         SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed_count
+       FROM product_requests
+       GROUP BY product_name_snapshot
+       ORDER BY request_count DESC, completed_count DESC
+       LIMIT 5`
+    )
+    .all();
 
   const recentAudit = db
     .prepare('SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 12')
@@ -360,8 +410,15 @@ adminRouter.get('/overview', (_req: AuthenticatedRequest, res: Response) => {
       completedRequests,
       totalApplications,
       newApplications,
+      referralClickCount,
       completedApplications,
+      totalSiteViews,
+      productViews,
+      totalCustomers: customerSummary?.totalCustomers || 0,
+      repeatCustomerCount: customerSummary?.repeatCustomerCount || 0,
+      ...funnel,
     },
+    topRequestedProducts,
     recentAudit,
   });
 });
@@ -821,30 +878,66 @@ adminRouter.patch('/applications/:id', (req: AuthenticatedRequest, res: Response
 });
 
 // Customer Directory (aggregated by normalized phone)
-adminRouter.get('/customers', (_req: AuthenticatedRequest, res: Response) => {
+adminRouter.get('/customers', (req: AuthenticatedRequest, res: Response) => {
   const db = getDb();
-  const rows = db
-    .prepare(
-      `SELECT
-         phone_normalized,
-         MAX(name) as latest_name,
-         SUM(req_cnt) as request_count,
-         SUM(app_cnt) as application_count,
-         MAX(marketing_opt_in) as marketing_opt_in,
-         MAX(last_seen) as last_activity
-       FROM (
-         SELECT phone_normalized, customer_name as name, 1 as req_cnt, 0 as app_cnt, consent_marketing as marketing_opt_in, created_at as last_seen
-         FROM product_requests
-         UNION ALL
-         SELECT phone_normalized, full_name as name, 0 as req_cnt, 1 as app_cnt, consent_marketing as marketing_opt_in, created_at as last_seen
-         FROM joining_applications
-       )
-       GROUP BY phone_normalized
-       ORDER BY last_activity DESC`
-    )
-    .all();
+  const q = sanitizePlainText(String(req.query.q || ''), 100).toLowerCase();
 
+  let sql = `SELECT
+       phone_normalized,
+       MAX(name) as latest_name,
+       SUM(req_cnt) as request_count,
+       SUM(app_cnt) as application_count,
+       MAX(marketing_opt_in) as marketing_opt_in,
+       MAX(last_seen) as last_activity
+     FROM (
+       SELECT phone_normalized, customer_name as name, 1 as req_cnt, 0 as app_cnt, consent_marketing as marketing_opt_in, created_at as last_seen
+       FROM product_requests
+       UNION ALL
+       SELECT phone_normalized, full_name as name, 0 as req_cnt, 1 as app_cnt, consent_marketing as marketing_opt_in, created_at as last_seen
+       FROM joining_applications
+     )
+     GROUP BY phone_normalized`;
+
+  const params: string[] = [];
+  if (q) {
+    sql = `SELECT * FROM (${sql}) WHERE LOWER(latest_name) LIKE ? OR LOWER(phone_normalized) LIKE ?`;
+    const pattern = `%${q}%`;
+    params.push(pattern, pattern);
+  }
+  sql += ' ORDER BY last_activity DESC';
+
+  const rows = db.prepare(sql).all(...params);
   res.json({ items: rows });
+});
+
+adminRouter.delete('/customers/:phone', (req: AuthenticatedRequest, res: Response) => {
+  const db = getDb();
+  const rawPhone = decodeURIComponent(String(req.params.phone || ''));
+  const check = validateAndNormalizeRwandaPhone(rawPhone);
+  if (!check.valid || !check.normalized) {
+    res.status(400).json({ error: 'Invalid customer phone identifier.' });
+    return;
+  }
+
+  const deletedRequests = db
+    .prepare('DELETE FROM product_requests WHERE phone_normalized = ?')
+    .run(check.normalized).changes;
+  const deletedApplications = db
+    .prepare('DELETE FROM joining_applications WHERE phone_normalized = ?')
+    .run(check.normalized).changes;
+
+  if (deletedRequests === 0 && deletedApplications === 0) {
+    res.status(404).json({ error: 'Customer record not found.' });
+    return;
+  }
+
+  const phoneHash = hashIp(check.normalized);
+  writeAuditLog(req.adminUser?.id || null, 'CUSTOMER_DATA_DELETED', 'customers', phoneHash, {
+    deletedRequests,
+    deletedApplications,
+  });
+
+  res.json({ ok: true, deletedRequests, deletedApplications });
 });
 
 // Content Management

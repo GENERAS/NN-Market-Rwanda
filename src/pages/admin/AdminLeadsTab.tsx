@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { Download, MessageCircle, Trash2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { buildCsvContent } from '../../../shared/analytics';
 
 interface RequestRow {
   id: string;
@@ -38,6 +39,18 @@ interface CustomerRow {
   last_activity: string;
 }
 
+function triggerCsvDownload(filename: string, csvContent: string) {
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export const AdminLeadsTab: React.FC<{
   mode: 'requests' | 'applications' | 'customers';
   onDataChanged: () => void;
@@ -51,6 +64,7 @@ export const AdminLeadsTab: React.FC<{
   const [customers, setCustomers] = useState<CustomerRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
+  const [confirmDeletePhone, setConfirmDeletePhone] = useState<string | null>(null);
 
   const [notesDraft, setNotesDraft] = useState<Record<string, string>>({});
 
@@ -79,7 +93,8 @@ export const AdminLeadsTab: React.FC<{
         for (const a of data.items || []) map[a.id] = a.internal_notes || '';
         setNotesDraft(map);
       } else {
-        const res = await fetch('/api/admin/customers', {
+        const params = new URLSearchParams({ q: search });
+        const res = await fetch(`/api/admin/customers?${params}`, {
           headers: { Authorization: `Bearer ${adminToken}` },
         });
         const data = await res.json();
@@ -128,13 +143,104 @@ export const AdminLeadsTab: React.FC<{
     }
   }
 
+  async function deleteCustomerRecord(phoneNormalized: string) {
+    if (!adminToken) return;
+    const res = await fetch(`/api/admin/customers/${encodeURIComponent(phoneNormalized)}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    if (res.ok) {
+      setConfirmDeletePhone(null);
+      setNotice('Customer record removed in accordance with privacy request.');
+      await load();
+      onDataChanged();
+    }
+  }
+
+  function handleExportCsv() {
+    const dateStamp = new Date().toISOString().split('T')[0];
+    if (mode === 'requests') {
+      const csv = buildCsvContent(
+        ['Reference', 'Customer Name', 'Phone', 'Product', 'Status', 'Source Page', 'Message', 'Internal Notes', 'Created At'],
+        requests.map((r) => [
+          r.reference_code,
+          r.customer_name,
+          r.phone_normalized,
+          r.product_name_snapshot,
+          r.status,
+          r.source_page,
+          r.message,
+          r.internal_notes,
+          r.created_at,
+        ])
+      );
+      triggerCsvDownload(`nn-market-product-requests-${dateStamp}.csv`, csv);
+    } else if (mode === 'applications') {
+      const csv = buildCsvContent(
+        ['Reference', 'Full Name', 'Phone', 'Status', 'Referral Clicked', 'Question', 'Internal Notes', 'Created At'],
+        applications.map((a) => [
+          a.reference_code,
+          a.full_name,
+          a.phone_normalized,
+          a.status,
+          a.referral_clicked === 1 ? 'Yes' : 'No',
+          a.question,
+          a.internal_notes,
+          a.created_at,
+        ])
+      );
+      triggerCsvDownload(`nn-market-joining-applications-${dateStamp}.csv`, csv);
+    } else {
+      const csv = buildCsvContent(
+        ['Name', 'Phone', 'Product Requests', 'Joining Inquiries', 'Marketing Consent', 'Last Activity'],
+        customers.map((c) => [
+          c.latest_name,
+          c.phone_normalized,
+          c.request_count,
+          c.application_count,
+          c.marketing_opt_in === 1 ? 'Opted in' : 'Request response only',
+          c.last_activity,
+        ])
+      );
+      triggerCsvDownload(`nn-market-customers-${dateStamp}.csv`, csv);
+    }
+  }
+
   if (mode === 'customers') {
     return (
-      <section className="bg-white border border-[#E9E7E1] rounded-lg p-6">
-        <h2 className="text-lg font-bold text-[#252B25] mb-1">Customer Directory</h2>
-        <p className="text-xs text-[#647067] mb-5">
-          Private record of customers grouped by normalized Rwandan phone number. Never exposed publicly.
-        </p>
+      <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-[#252B25] mb-1">Customer Directory</h2>
+            <p className="text-xs text-[#647067]">
+              Private record of customers grouped by normalized Rwandan phone number. Never exposed publicly.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name or phone..."
+              className="min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
+            />
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              disabled={customers.length === 0}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-md border border-[#E9E7E1] text-xs font-semibold text-[#252B25] hover:border-[#26733E] disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5" aria-hidden="true" />
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        {notice && (
+          <div className="p-3 rounded-md bg-[#F1F7F1] border border-[#26733E]/30 text-xs font-medium text-[#26733E]">
+            {notice}
+          </div>
+        )}
 
         {loading ? (
           <p className="text-sm text-[#647067]">Loading customers...</p>
@@ -150,7 +256,8 @@ export const AdminLeadsTab: React.FC<{
                   <th className="py-2.5 pr-4 font-semibold text-right">Requests</th>
                   <th className="py-2.5 pr-4 font-semibold text-right">Joining</th>
                   <th className="py-2.5 pr-4 font-semibold">Marketing Consent</th>
-                  <th className="py-2.5 font-semibold">Last Activity</th>
+                  <th className="py-2.5 pr-4 font-semibold">Last Activity</th>
+                  <th className="py-2.5 font-semibold text-right">Privacy</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E9E7E1]">
@@ -163,8 +270,38 @@ export const AdminLeadsTab: React.FC<{
                     <td className="py-3 pr-4 text-xs">
                       {c.marketing_opt_in === 1 ? 'Opted in' : 'Request response only'}
                     </td>
-                    <td className="py-3 text-xs text-[#647067] tabular-nums">
+                    <td className="py-3 pr-4 text-xs text-[#647067] tabular-nums">
                       {new Date(c.last_activity).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 text-right whitespace-nowrap">
+                      {confirmDeletePhone === c.phone_normalized ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => deleteCustomerRecord(c.phone_normalized)}
+                            className="px-2.5 py-1 text-xs font-semibold bg-[#C0392B] text-white rounded"
+                          >
+                            Confirm Delete
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeletePhone(null)}
+                            className="px-2.5 py-1 text-xs font-semibold border border-[#E9E7E1] text-[#252B25] rounded"
+                          >
+                            Cancel
+                          </button>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeletePhone(c.phone_normalized)}
+                          aria-label={`Remove record for ${c.phone_normalized}`}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#C0392B] hover:bg-red-50 rounded"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                          Remove
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -213,6 +350,15 @@ export const AdminLeadsTab: React.FC<{
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            disabled={(mode === 'requests' ? requests : applications).length === 0}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-md border border-[#E9E7E1] text-xs font-semibold text-[#252B25] hover:border-[#26733E] disabled:opacity-50"
+          >
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+            Export CSV
+          </button>
         </div>
       </div>
 

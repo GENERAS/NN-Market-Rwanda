@@ -11,10 +11,33 @@ import { AboutPage, FaqPage, LegalPage, RequestAndContactPage } from './pages/St
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { SeoHead } from './components/SeoHead';
 
-const ScrollToTop: React.FC = () => {
+const ScrollToTopAndTrack: React.FC = () => {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+
+    if (
+      pathname.startsWith('/admin') ||
+      pathname === '/request/confirmed' ||
+      pathname === '/join/confirmed'
+    ) {
+      return;
+    }
+
+    const isProductDetail = pathname.startsWith('/products/') && pathname.length > '/products/'.length;
+    const productSlug = isProductDetail ? pathname.slice('/products/'.length) : undefined;
+
+    fetch('/api/public/analytics/view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventType: isProductDetail ? 'product_view' : 'page_view',
+        path: pathname,
+        productSlug,
+      }),
+    }).catch(() => {
+      // non-blocking anonymous view counter
+    });
   }, [pathname]);
   return null;
 };
@@ -49,7 +72,7 @@ export default function App() {
   return (
     <AppProvider>
       <BrowserRouter>
-        <ScrollToTop />
+        <ScrollToTopAndTrack />
         <Routes>
           <Route path="/admin/*" element={<AdminDashboardPage />} />
           <Route

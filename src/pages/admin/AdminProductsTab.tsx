@@ -12,6 +12,9 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'archived'>('all');
+
   // Product editor state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
@@ -35,6 +38,7 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
     verification_status: 'verified',
     is_featured: false,
     is_published: true,
+    is_archived: false,
     seo_title: '',
     seo_description: '',
   });
@@ -90,6 +94,7 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
       verification_status: 'verified',
       is_featured: false,
       is_published: true,
+      is_archived: false,
       seo_title: '',
       seo_description: '',
     });
@@ -120,6 +125,7 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
       verification_status: p.verification_status,
       is_featured: p.is_featured === 1,
       is_published: p.is_published === 1,
+      is_archived: p.is_archived === 1,
       seo_title: p.seo_title,
       seo_description: p.seo_description,
     });
@@ -243,19 +249,39 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
 
       {/* Products Section */}
       <section className="bg-white border border-[#E9E7E1] rounded-lg p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
           <div>
             <h2 className="text-lg font-bold text-[#252B25]">Products Catalogue</h2>
             <p className="text-xs text-[#647067]">Create, verify pricing, upload product photos, and control publication.</p>
           </div>
-          <button
-            type="button"
-            onClick={openNewProduct}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[42px] rounded-md bg-[#26733E] text-white text-sm font-semibold whitespace-nowrap shrink-0"
-          >
-            <Plus className="w-4 h-4" aria-hidden="true" />
-            Add Product
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Filter products..."
+              className="min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
+            />
+            <select
+              aria-label="Filter products by status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'draft' | 'archived')}
+              className="min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
+            >
+              <option value="all">All Statuses</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+              <option value="archived">Archived</option>
+            </select>
+            <button
+              type="button"
+              onClick={openNewProduct}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[42px] rounded-md bg-[#26733E] text-white text-sm font-semibold whitespace-nowrap shrink-0"
+            >
+              <Plus className="w-4 h-4" aria-hidden="true" />
+              Add Product
+            </button>
+          </div>
         </div>
 
         {showProductForm && (
@@ -412,6 +438,16 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
                 />
               </div>
 
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-[#252B25] mb-1">Full Description (Kinyarwanda)</label>
+                <textarea
+                  rows={3}
+                  value={formState.full_description_rw}
+                  onChange={(e) => setFormState({ ...formState, full_description_rw: e.target.value })}
+                  className="w-full px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded-md"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-[#252B25] mb-1">Verified Ingredients (English)</label>
                 <input
@@ -423,11 +459,53 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
               </div>
 
               <div>
+                <label className="block text-xs font-semibold text-[#252B25] mb-1">Verified Ingredients (Kinyarwanda)</label>
+                <input
+                  type="text"
+                  value={formState.ingredients_rw}
+                  onChange={(e) => setFormState({ ...formState, ingredients_rw: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#252B25] mb-1">Manufacturer / Brand Info</label>
+                <input
+                  type="text"
+                  value={formState.manufacturer_info}
+                  onChange={(e) => setFormState({ ...formState, manufacturer_info: e.target.value })}
+                  placeholder="N-Nutrition"
+                  className="w-full min-h-[42px] px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#252B25] mb-1">URL Slug (optional)</label>
+                <input
+                  type="text"
+                  value={formState.slug}
+                  onChange={(e) => setFormState({ ...formState, slug: e.target.value })}
+                  placeholder="auto-generated-from-name"
+                  className="w-full min-h-[42px] px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded-md"
+                />
+              </div>
+
+              <div>
                 <label className="block text-xs font-semibold text-[#252B25] mb-1">SEO Title</label>
                 <input
                   type="text"
                   value={formState.seo_title}
                   onChange={(e) => setFormState({ ...formState, seo_title: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#252B25] mb-1">SEO Meta Description</label>
+                <input
+                  type="text"
+                  value={formState.seo_description}
+                  onChange={(e) => setFormState({ ...formState, seo_description: e.target.value })}
                   className="w-full min-h-[42px] px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded-md"
                 />
               </div>
@@ -452,6 +530,17 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
                 />
                 Featured on Homepage
               </label>
+              {editingId && (
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-[#252B25] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formState.is_archived}
+                    onChange={(e) => setFormState({ ...formState, is_archived: e.target.checked })}
+                    className="w-4 h-4 accent-[#C0392B]"
+                  />
+                  Archived (uncheck to restore)
+                </label>
+              )}
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -487,7 +576,19 @@ export const AdminProductsTab: React.FC<{ onDataChanged: () => void }> = ({ onDa
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E9E7E1]">
-                {products.map((p) => (
+                {products
+                  .filter((p) => {
+                    const q = searchTerm.trim().toLowerCase();
+                    const matchesSearch =
+                      !q || p.name_en.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
+                    const matchesStatus =
+                      statusFilter === 'all' ||
+                      (statusFilter === 'published' && p.is_published === 1 && p.is_archived === 0) ||
+                      (statusFilter === 'draft' && p.is_published === 0 && p.is_archived === 0) ||
+                      (statusFilter === 'archived' && p.is_archived === 1);
+                    return matchesSearch && matchesStatus;
+                  })
+                  .map((p) => (
                   <tr key={p.id} className="hover:bg-[#FBF7EF]/60">
                     <td className="py-3 pr-4">
                       <div className="font-semibold text-[#252B25]">{p.name_en}</div>

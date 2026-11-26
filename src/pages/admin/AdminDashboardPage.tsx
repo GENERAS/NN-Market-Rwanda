@@ -20,7 +20,22 @@ interface OverviewStats {
   completedRequests: number;
   totalApplications: number;
   newApplications: number;
+  referralClickCount: number;
   completedApplications: number;
+  totalSiteViews: number;
+  productViews: number;
+  totalCustomers: number;
+  repeatCustomerCount: number;
+  requestConversionRate: number;
+  salesConversionRate: number;
+  referralClickRate: number;
+  referralCompletionRate: number;
+}
+
+interface TopRequestedProduct {
+  product_name: string;
+  request_count: number;
+  completed_count: number;
 }
 
 interface AuditEntry {
@@ -35,6 +50,7 @@ export const AdminDashboardPage: React.FC = () => {
   const { adminToken, adminUser, setAdminSession, refreshBootstrap } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [stats, setStats] = useState<OverviewStats | null>(null);
+  const [topProducts, setTopProducts] = useState<TopRequestedProduct[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditEntry[]>([]);
 
   const loadOverview = useCallback(async () => {
@@ -49,6 +65,7 @@ export const AdminDashboardPage: React.FC = () => {
     if (res.ok) {
       const data = await res.json();
       setStats(data.stats);
+      setTopProducts(data.topRequestedProducts || []);
       setAuditLogs(data.recentAudit || []);
     }
   }, [adminToken, setAdminSession]);
@@ -129,25 +146,77 @@ export const AdminDashboardPage: React.FC = () => {
           {activeTab === 'overview' && (
             <div className="space-y-6">
               {stats ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                  {[
-                    { label: 'Total Products', val: stats.totalProducts },
-                    { label: 'Published Products', val: stats.publishedProducts },
-                    { label: 'Unavailable Products', val: stats.unavailableProducts },
-                    { label: 'Total Requests', val: stats.totalRequests },
-                    { label: 'New Requests', val: stats.newRequests },
-                    { label: 'Requests Contacted', val: stats.contactedRequests },
-                    { label: 'Completed Requests', val: stats.completedRequests },
-                    { label: 'Total Joining Apps', val: stats.totalApplications },
-                    { label: 'New Joining Apps', val: stats.newApplications },
-                    { label: 'Completed Joining', val: stats.completedApplications },
-                  ].map((item) => (
-                    <div key={item.label} className="bg-white border border-[#E9E7E1] rounded-lg p-4">
-                      <div className="text-xs text-[#647067] mb-1">{item.label}</div>
-                      <div className="text-2xl font-bold text-[#252B25] tabular-nums">{item.val}</div>
+                <>
+                  {/* Catalog & Pipeline Status */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {[
+                      { label: 'Total Products', val: stats.totalProducts },
+                      { label: 'Published Products', val: stats.publishedProducts },
+                      { label: 'Unavailable Products', val: stats.unavailableProducts },
+                      { label: 'Total Requests', val: stats.totalRequests },
+                      { label: 'New Requests', val: stats.newRequests },
+                      { label: 'Requests Contacted', val: stats.contactedRequests },
+                      { label: 'Completed Requests', val: stats.completedRequests },
+                      { label: 'Total Joining Apps', val: stats.totalApplications },
+                      { label: 'New Joining Apps', val: stats.newApplications },
+                      { label: 'Completed Joining', val: stats.completedApplications },
+                    ].map((item) => (
+                      <div key={item.label} className="bg-white border border-[#E9E7E1] rounded-lg p-4">
+                        <div className="text-xs text-[#647067] mb-1">{item.label}</div>
+                        <div className="text-2xl font-bold text-[#252B25] tabular-nums">{item.val}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Funnel & Conversion Analytics (Blueprint §7) */}
+                  <section className="bg-white border border-[#E9E7E1] rounded-lg p-6">
+                    <div className="mb-4">
+                      <h2 className="text-base font-bold text-[#252B25]">Business Funnel &amp; Conversion Metrics</h2>
+                      <p className="text-xs text-[#647067]">
+                        Measured strictly from anonymous page/product views, submitted requests, referral clicks, and verified completions.
+                      </p>
                     </div>
-                  ))}
-                </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {[
+                        { label: 'Total Site Views', val: String(stats.totalSiteViews) },
+                        { label: 'Product Views', val: String(stats.productViews) },
+                        { label: 'Request Conversion Rate', val: `${stats.requestConversionRate}%` },
+                        { label: 'Sales Completion Rate', val: `${stats.salesConversionRate}%` },
+                        { label: 'Referral Link Clicks', val: String(stats.referralClickCount) },
+                        { label: 'Referral Click Rate', val: `${stats.referralClickRate}%` },
+                        { label: 'Joining Completion Rate', val: `${stats.referralCompletionRate}%` },
+                        {
+                          label: 'Customers / Repeat',
+                          val: `${stats.totalCustomers} (${stats.repeatCustomerCount} repeat)`,
+                        },
+                      ].map((metric) => (
+                        <div key={metric.label} className="p-4 rounded-lg bg-[#FBF7EF]/60 border border-[#E9E7E1]">
+                          <div className="text-xs text-[#647067] mb-1">{metric.label}</div>
+                          <div className="text-lg sm:text-xl font-bold text-[#26733E] tabular-nums">{metric.val}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Top Requested Products */}
+                  <section className="bg-white border border-[#E9E7E1] rounded-lg p-6">
+                    <h2 className="text-base font-bold text-[#252B25] mb-3">Most Requested Products</h2>
+                    {topProducts.length === 0 ? (
+                      <p className="text-sm text-[#647067]">No product requests recorded yet.</p>
+                    ) : (
+                      <div className="divide-y divide-[#E9E7E1] text-sm">
+                        {topProducts.map((tp) => (
+                          <div key={tp.product_name} className="py-2.5 flex items-center justify-between gap-4">
+                            <span className="font-semibold text-[#252B25]">{tp.product_name}</span>
+                            <span className="text-xs text-[#647067] tabular-nums">
+                              {tp.request_count} requests · {tp.completed_count || 0} completed
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                </>
               ) : (
                 <p className="text-sm text-[#647067]">Loading database metrics...</p>
               )}
