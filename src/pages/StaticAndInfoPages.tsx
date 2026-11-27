@@ -11,25 +11,42 @@ export const FaqPage: React.FC = () => {
   const { lang, t, bootstrap } = useApp();
   const [scopeFilter, setScopeFilter] = useState<'all' | 'general' | 'joining'>('all');
 
-  const faqs = (bootstrap?.faqs || []).filter((f) => scopeFilter === 'all' || f.scope === scopeFilter);
+  const allFaqs = bootstrap?.faqs || [];
+  const faqs = allFaqs.filter((f) => scopeFilter === 'all' || f.scope === scopeFilter);
+
+  const faqSchema =
+    allFaqs.length > 0
+      ? [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: allFaqs.map((f) => ({
+              '@type': 'Question',
+              name: f.question_en,
+              acceptedAnswer: { '@type': 'Answer', text: f.answer_en },
+            })),
+          },
+        ]
+      : [];
 
   return (
     <>
       <SeoHead
         title="Frequently Asked Questions | NN Market Rwanda"
-        description="Answers to common questions about NN Market Rwanda, requesting N-Nutrition products, and joining requirements in Rwanda."
+        description="Answers to common questions about NN Market Rwanda (N Market in Rwanda), requesting N-Nutrition products, and joining requirements."
+        structuredData={faqSchema}
       />
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-10 sm:py-12">
-        <nav aria-label="Breadcrumb" className="text-xs text-[#647067] mb-4 flex items-center gap-2">
-          <Link to="/" className="hover:text-[#26733E]">
+      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <nav aria-label="Breadcrumb" className="text-xs text-[#5C6760] mb-4 flex items-center gap-2">
+          <Link to="/" className="hover:text-[#1F5138]">
             {t.nav.home}
           </Link>
           <span aria-hidden="true">/</span>
-          <span className="text-[#252B25] font-medium">{t.nav.faq}</span>
+          <span className="text-[#1E2420] font-medium">{t.nav.faq}</span>
         </nav>
 
-        <h1 className="text-3xl sm:text-4xl font-bold text-[#252B25] mb-3">{t.home.faqTitle}</h1>
-        <p className="text-base text-[#647067] mb-6">{t.home.faqSub}</p>
+        <h1 className="text-3xl sm:text-4xl font-bold text-[#1E2420] mb-3">{t.home.faqTitle}</h1>
+        <p className="text-base text-[#5C6760] mb-6">{t.home.faqSub}</p>
 
         <div className="flex flex-wrap gap-2 mb-8" role="group" aria-label="FAQ topic filter">
           {(['all', 'general', 'joining'] as const).map((sc) => (
@@ -37,10 +54,10 @@ export const FaqPage: React.FC = () => {
               key={sc}
               type="button"
               onClick={() => setScopeFilter(sc)}
-              className={`px-4 py-2 min-h-[40px] rounded-md text-sm font-semibold ${
+              className={`px-4 py-2 min-h-[44px] rounded-md text-sm font-semibold ${
                 scopeFilter === sc
-                  ? 'bg-[#26733E] text-white'
-                  : 'bg-[#FBF7EF] border border-[#E9E7E1] text-[#252B25]'
+                  ? 'bg-[#1F5138] text-white'
+                  : 'bg-[#F9F5EC] border border-[#E5DEC9] text-[#1E2420]'
               }`}
             >
               {sc === 'all'
@@ -63,12 +80,12 @@ export const FaqPage: React.FC = () => {
             const q = lang === 'rw' && faq.question_rw ? faq.question_rw : faq.question_en;
             const a = lang === 'rw' && faq.answer_rw ? faq.answer_rw : faq.answer_en;
             return (
-              <details key={faq.id} className="group border border-[#E9E7E1] rounded-lg p-5 bg-white">
-                <summary className="flex items-center justify-between gap-4 cursor-pointer list-none text-base font-semibold text-[#252B25]">
+              <details key={faq.id} className="group border border-[#E5DEC9] rounded-lg p-5 bg-white">
+                <summary className="flex items-center justify-between gap-4 cursor-pointer list-none text-base font-semibold text-[#1E2420]">
                   <span>{q}</span>
-                  <ChevronDown className="w-5 h-5 text-[#647067] shrink-0 group-open:rotate-180 transition-transform" />
+                  <ChevronDown className="w-5 h-5 text-[#5C6760] shrink-0 group-open:rotate-180 transition-transform" />
                 </summary>
-                <p className="mt-3 pt-3 border-t border-[#E9E7E1] text-sm text-[#647067] leading-relaxed">{a}</p>
+                <p className="mt-3 pt-3 border-t border-[#E5DEC9] text-sm text-[#5C6760] leading-relaxed">{a}</p>
               </details>
             );
           })}
@@ -97,38 +114,38 @@ export const AboutPage: React.FC = () => {
   return (
     <>
       <SeoHead
-        title="About NN Market Rwanda — Independent N-Nutrition Marketing Agent"
+        title="About NN Market Rwanda (N Market in Rwanda)"
         description="Learn how NN Market Rwanda assists customers in Rwanda with N-Nutrition product discovery, requests, and referral guidance."
       />
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-10 sm:py-12 space-y-8">
-        <nav aria-label="Breadcrumb" className="text-xs text-[#647067] flex items-center gap-2">
-          <Link to="/" className="hover:text-[#26733E]">
+      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
+        <nav aria-label="Breadcrumb" className="text-xs text-[#5C6760] flex items-center gap-2">
+          <Link to="/" className="hover:text-[#1F5138]">
             {t.nav.home}
           </Link>
           <span aria-hidden="true">/</span>
-          <span className="text-[#252B25] font-medium">{t.nav.about}</span>
+          <span className="text-[#1E2420] font-medium">{t.nav.about}</span>
         </nav>
 
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#252B25] mb-4">{aboutTitle}</h1>
-          <p className="text-base text-[#647067] leading-relaxed whitespace-pre-line">{aboutBody}</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#1E2420] mb-4">{aboutTitle}</h1>
+          <p className="text-base text-[#5C6760] leading-relaxed whitespace-pre-line">{aboutBody}</p>
         </div>
 
-        <section className="p-6 rounded-lg bg-[#FBF7EF] border border-[#E9E7E1]">
-          <h2 className="text-lg font-bold text-[#A87936] mb-2">{discTitle}</h2>
-          <p className="text-sm sm:text-base text-[#252B25] leading-relaxed">{discBody}</p>
+        <section className="p-6 rounded-lg bg-[#F9F5EC] border border-[#E5DEC9]">
+          <h2 className="text-lg font-bold text-[#9C661F] mb-2">{discTitle}</h2>
+          <p className="text-sm sm:text-base text-[#1E2420] leading-relaxed">{discBody}</p>
         </section>
 
         <div className="flex flex-wrap gap-3">
           <Link
             to="/products"
-            className="inline-flex items-center justify-center px-5 py-3 min-h-[46px] rounded-md bg-[#26733E] text-white text-sm font-semibold"
+            className="inline-flex items-center justify-center px-5 py-3 min-h-[46px] rounded-md bg-[#1F5138] text-white text-sm font-semibold"
           >
             {t.hero.primaryCta}
           </Link>
           <Link
-            to="/join"
-            className="inline-flex items-center justify-center px-5 py-3 min-h-[46px] rounded-md bg-white border border-[#E9E7E1] text-[#252B25] text-sm font-semibold"
+            to="/join#join-form"
+            className="inline-flex items-center justify-center px-5 py-3 min-h-[46px] rounded-md bg-white border border-[#E5DEC9] text-[#1E2420] text-sm font-semibold"
           >
             {t.hero.secondaryCta}
           </Link>
@@ -163,25 +180,25 @@ export const RequestAndContactPage: React.FC<{ mode?: 'request' | 'contact' }> =
   return (
     <>
       <SeoHead title={`${title} | NN Market Rwanda`} description={subtitle} />
-      <div className="max-w-[720px] mx-auto px-4 sm:px-6 py-10 sm:py-12">
-        <nav aria-label="Breadcrumb" className="text-xs text-[#647067] mb-4 flex items-center gap-2">
-          <Link to="/" className="hover:text-[#26733E]">
+      <div className="max-w-[720px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <nav aria-label="Breadcrumb" className="text-xs text-[#5C6760] mb-4 flex items-center gap-2">
+          <Link to="/" className="hover:text-[#1F5138]">
             {t.nav.home}
           </Link>
           <span aria-hidden="true">/</span>
-          <span className="text-[#252B25] font-medium">{title}</span>
+          <span className="text-[#1E2420] font-medium">{title}</span>
         </nav>
 
-        <h1 className="text-3xl font-bold text-[#252B25] mb-3">{title}</h1>
-        <p className="text-base text-[#647067] leading-relaxed mb-8">{subtitle}</p>
+        <h1 className="text-3xl font-bold text-[#1E2420] mb-3">{title}</h1>
+        <p className="text-base text-[#5C6760] leading-relaxed mb-8">{subtitle}</p>
 
-        <div className="border border-[#E9E7E1] rounded-lg p-6 sm:p-8 bg-white">
+        <div className="border border-[#E5DEC9] rounded-lg p-6 sm:p-8 bg-white">
           <ProductRequestForm availableProducts={products} />
         </div>
 
-        <div className="mt-6 p-4 rounded-md bg-[#F1F7F1] border border-[#E9E7E1] flex items-start gap-3">
-          <ShieldCheck className="w-5 h-5 text-[#26733E] shrink-0 mt-0.5" aria-hidden="true" />
-          <p className="text-xs text-[#647067] leading-relaxed">
+        <div className="mt-6 p-4 rounded-md bg-[#EEF5F0] border border-[#E5DEC9] flex items-start gap-3">
+          <ShieldCheck className="w-5 h-5 text-[#1F5138] shrink-0 mt-0.5" aria-hidden="true" />
+          <p className="text-xs text-[#5C6760] leading-relaxed">
             {lang === 'rw'
               ? 'Ukeneye ko amakuru yawe akosorwa cyangwa asibwa muri sisitemu? Andika ubutumwa binyuze muri iyi fishi wongereho ko usaba gusibwa.'
               : 'To request correction or deletion of your phone record under our Privacy Policy, submit a short note in the message box above and our administrator will process it promptly.'}
@@ -210,18 +227,18 @@ export const LegalPage: React.FC<{ type: 'privacy' | 'terms' }> = ({ type }) => 
   return (
     <>
       <SeoHead title={`${title} | NN Market Rwanda`} description={body.slice(0, 155)} />
-      <div className="max-w-[840px] mx-auto px-4 sm:px-6 py-10 sm:py-12">
-        <nav aria-label="Breadcrumb" className="text-xs text-[#647067] mb-4 flex items-center gap-2">
-          <Link to="/" className="hover:text-[#26733E]">
+      <div className="max-w-[840px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <nav aria-label="Breadcrumb" className="text-xs text-[#5C6760] mb-4 flex items-center gap-2">
+          <Link to="/" className="hover:text-[#1F5138]">
             {t.nav.home}
           </Link>
           <span aria-hidden="true">/</span>
-          <span className="text-[#252B25] font-medium">{title}</span>
+          <span className="text-[#1E2420] font-medium">{title}</span>
         </nav>
 
-        <h1 className="text-3xl font-bold text-[#252B25] mb-6">{title}</h1>
-        <div className="p-6 sm:p-8 rounded-lg border border-[#E9E7E1] bg-white">
-          <p className="text-sm sm:text-base text-[#252B25] leading-relaxed whitespace-pre-line">{body}</p>
+        <h1 className="text-3xl font-bold text-[#1E2420] mb-6">{title}</h1>
+        <div className="p-6 sm:p-8 rounded-lg border border-[#E5DEC9] bg-white">
+          <p className="text-sm sm:text-base text-[#1E2420] leading-relaxed whitespace-pre-line">{body}</p>
         </div>
       </div>
     </>

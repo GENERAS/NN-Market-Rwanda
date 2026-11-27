@@ -46,20 +46,20 @@ const NotFoundPage: React.FC = () => (
   <>
     <SeoHead title="Page Not Found | NN Market Rwanda" description="Requested page could not be found." noIndex />
     <div className="max-w-[640px] mx-auto px-4 sm:px-6 py-20 text-center">
-      <h1 className="text-3xl font-bold text-[#252B25] mb-3">Page Not Found</h1>
-      <p className="text-base text-[#647067] mb-6">
+      <h1 className="text-3xl font-bold text-[#1E2420] mb-3">Page Not Found</h1>
+      <p className="text-base text-[#5C6760] mb-6">
         The page you are looking for is unavailable or has moved.
       </p>
       <div className="flex justify-center gap-3">
         <Link
           to="/"
-          className="px-5 py-3 min-h-[44px] rounded-md bg-[#26733E] text-white text-sm font-semibold"
+          className="px-5 py-3 min-h-[44px] rounded-md bg-[#1F5138] text-white text-sm font-semibold"
         >
           Back to Home
         </Link>
         <Link
           to="/products"
-          className="px-5 py-3 min-h-[44px] rounded-md bg-[#FBF7EF] border border-[#E9E7E1] text-[#252B25] text-sm font-semibold"
+          className="px-5 py-3 min-h-[44px] rounded-md bg-[#F9F5EC] border border-[#E5DEC9] text-[#1E2420] text-sm font-semibold"
         >
           Browse Products
         </Link>

@@ -333,4 +333,59 @@ test('API end-to-end security, contact gating, product visibility, and admin wor
     headers: { Authorization: `Bearer ${adminToken}` },
   });
   assert.equal((custAfter.json.items as unknown[]).length, 0);
+
+  // 12. Multi-image upload (/api/admin/uploads) + multi-image product creation & retrieval
+  const form = new FormData();
+  const tinyPng = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    'base64'
+  );
+  form.append('images', new Blob([tinyPng], { type: 'image/png' }), 'photo1.png');
+  form.append('images', new Blob([tinyPng], { type: 'image/png' }), 'photo2.png');
+
+  const multiUploadRes = await fetch(`${baseUrl}/api/admin/uploads`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${adminToken}` },
+    body: form,
+  });
+  const multiUploadJson = (await multiUploadRes.json()) as { urls: string[] };
+  assert.equal(multiUploadRes.status, 201);
+  assert.equal(multiUploadJson.urls.length, 2);
+
+  const createMultiProd = await requestJson('/api/admin/products', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${adminToken}` },
+    body: JSON.stringify({
+      category_id: 'cat-nutrition',
+      name_en: 'Multi Photo Herbal Complex',
+      name_rw: 'Multi Photo Herbal Complex RW',
+      short_description_en: 'Test multi-image product',
+      main_image: multiUploadJson.urls[0],
+      gallery_images: multiUploadJson.urls,
+      price_rwf: 18500,
+      is_published: true,
+    }),
+  });
+  assert.equal(createMultiProd.status, 201);
+  const createdProd = createMultiProd.json.product as { id: string; slug: string; gallery_images: string[] };
+  assert.equal(createdProd.gallery_images.length, 2);
+
+  const publicMultiDetail = await requestJson(`/api/public/products/${createdProd.slug}`);
+  assert.equal(publicMultiDetail.status, 200);
+  const detailImages = publicMultiDetail.json.images as Array<{ image_url: string }>;
+  assert.equal(detailImages.length, 2);
+  assert.equal(detailImages[0].image_url, multiUploadJson.urls[0]);
+  assert.equal(detailImages[1].image_url, multiUploadJson.urls[1]);
+
+  // Clean up test uploaded files
+  for (const relUrl of multiUploadJson.urls) {
+    const filename = path.basename(relUrl);
+    for (const dir of [path.resolve(process.cwd(), 'public', 'uploads'), path.join(os.tmpdir(), 'uploads')]) {
+      try {
+        fs.unlinkSync(path.join(dir, filename));
+      } catch {
+        // ignore missing
+      }
+    }
+  }
 });

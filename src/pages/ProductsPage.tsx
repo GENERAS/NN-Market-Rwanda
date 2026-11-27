@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Product } from '../types';
@@ -9,11 +9,13 @@ import { fetchPublicProducts } from '../utils/publicCatalogClient';
 
 export const ProductsPage: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { lang, t, bootstrap } = useApp();
 
-  const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const initialQuery = searchParams.get('q') || '';
+  const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [sort, setSort] = useState('featured');
   const [page, setPage] = useState(1);
 
@@ -26,6 +28,15 @@ export const ProductsPage: React.FC = () => {
   const activeCategory = categorySlug || 'all';
   const categories = bootstrap?.categories || [];
   const currentCatObj = categories.find((c) => c.slug === activeCategory);
+
+  useEffect(() => {
+    const urlQ = searchParams.get('q') || '';
+    if (urlQ && urlQ !== query) {
+      setQuery(urlQ);
+      setDebouncedQuery(urlQ);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -86,38 +97,38 @@ export const ProductsPage: React.FC = () => {
         description={pageSubtitle}
       />
 
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-12">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="text-xs text-[#647067] mb-4 flex items-center gap-2">
-          <Link to="/" className="hover:text-[#26733E]">
+        <nav aria-label="Breadcrumb" className="text-xs text-[#5C6760] mb-4 flex items-center gap-2">
+          <Link to="/" className="hover:text-[#1F5138]">
             {t.nav.home}
           </Link>
           <span aria-hidden="true">/</span>
-          <Link to="/products" className="hover:text-[#26733E]">
+          <Link to="/products" className="hover:text-[#1F5138]">
             {t.nav.products}
           </Link>
           {currentCatObj && (
             <>
               <span aria-hidden="true">/</span>
-              <span className="text-[#252B25] font-medium">{pageHeading}</span>
+              <span className="text-[#1E2420] font-medium">{pageHeading}</span>
             </>
           )}
         </nav>
 
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#252B25] mb-2">{pageHeading}</h1>
-          <p className="text-base text-[#647067] max-w-2xl">{pageSubtitle}</p>
+        <div className="mb-7">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#1E2420] mb-2">{pageHeading}</h1>
+          <p className="text-base text-[#5C6760] max-w-2xl">{pageSubtitle}</p>
         </div>
 
         {/* Search & Filter Toolbar */}
-        <div className="bg-[#FBF7EF] border border-[#E9E7E1] rounded-lg p-4 sm:p-5 mb-8 space-y-4">
+        <div className="bg-[#F9F5EC] border border-[#E5DEC9] rounded-lg p-4 sm:p-5 mb-8 space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <label htmlFor="catalog-search" className="sr-only">
                 {t.catalog.searchPlaceholder}
               </label>
               <Search
-                className="w-4 h-4 text-[#647067] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                className="w-4 h-4 text-[#5C6760] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
                 aria-hidden="true"
               />
               <input
@@ -126,12 +137,12 @@ export const ProductsPage: React.FC = () => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t.catalog.searchPlaceholder}
-                className="w-full min-h-[44px] pl-10 pr-4 py-2 text-sm bg-white border border-[#E9E7E1] rounded-md text-[#252B25]"
+                className="w-full min-h-[44px] pl-10 pr-4 py-2 text-sm bg-white border border-[#E5DEC9] rounded-md text-[#1E2420]"
               />
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <label htmlFor="catalog-sort" className="text-sm font-medium text-[#647067] whitespace-nowrap">
+              <label htmlFor="catalog-sort" className="text-sm font-medium text-[#5C6760] whitespace-nowrap">
                 {t.catalog.sortLabel}
               </label>
               <select
@@ -141,7 +152,7 @@ export const ProductsPage: React.FC = () => {
                   setSort(e.target.value);
                   setPage(1);
                 }}
-                className="min-h-[44px] px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded-md text-[#252B25]"
+                className="min-h-[44px] px-3 py-2 text-sm bg-white border border-[#E5DEC9] rounded-md text-[#1E2420]"
               >
                 <option value="featured">{t.catalog.sortFeatured}</option>
                 <option value="price_asc">{t.catalog.sortPriceAsc}</option>
@@ -158,10 +169,10 @@ export const ProductsPage: React.FC = () => {
                 setPage(1);
                 navigate('/products');
               }}
-              className={`px-3.5 py-2 min-h-[40px] rounded-md text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap shrink-0 ${
+              className={`px-3.5 py-2 min-h-[44px] rounded-md text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap shrink-0 ${
                 activeCategory === 'all'
-                  ? 'bg-[#26733E] text-white'
-                  : 'bg-white text-[#252B25] border border-[#E9E7E1] hover:border-[#A87936]'
+                  ? 'bg-[#1F5138] text-white'
+                  : 'bg-white text-[#1E2420] border border-[#E5DEC9] hover:border-[#9C661F]'
               }`}
             >
               {t.catalog.allCategories}
@@ -177,10 +188,10 @@ export const ProductsPage: React.FC = () => {
                     setPage(1);
                     navigate(`/categories/${cat.slug}`);
                   }}
-                  className={`px-3.5 py-2 min-h-[40px] rounded-md text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap shrink-0 ${
+                  className={`px-3.5 py-2 min-h-[44px] rounded-md text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap shrink-0 ${
                     isSelected
-                      ? 'bg-[#26733E] text-white'
-                      : 'bg-white text-[#252B25] border border-[#E9E7E1] hover:border-[#A87936]'
+                      ? 'bg-[#1F5138] text-white'
+                      : 'bg-white text-[#1E2420] border border-[#E5DEC9] hover:border-[#9C661F]'
                   }`}
                 >
                   {catLabel}
@@ -190,14 +201,14 @@ export const ProductsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-5 text-sm text-[#647067]">
+        <div className="flex items-center justify-between mb-5 text-sm text-[#5C6760]">
           <span className="tabular-nums">
             {total} {t.catalog.resultsCount}
           </span>
         </div>
 
         {error && (
-          <div role="alert" className="p-4 rounded-md bg-red-50 border border-[#C0392B]/30 text-sm text-[#C0392B] mb-6">
+          <div role="alert" className="p-4 rounded-md bg-red-50 border border-[#B83227]/30 text-sm text-[#B83227] mb-6">
             {error}
           </div>
         )}
@@ -205,13 +216,13 @@ export const ProductsPage: React.FC = () => {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-80 rounded-lg bg-[#FBF7EF] animate-pulse border border-[#E9E7E1]" />
+              <div key={i} className="h-80 rounded-lg bg-[#F9F5EC] animate-pulse border border-[#E5DEC9]" />
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="p-10 text-center rounded-lg border border-[#E9E7E1] bg-[#FBF7EF]">
-            <h2 className="text-lg font-semibold text-[#252B25] mb-2">{t.catalog.emptyTitle}</h2>
-            <p className="text-sm text-[#647067] mb-5">{t.catalog.emptyBody}</p>
+          <div className="p-10 text-center rounded-lg border border-[#E5DEC9] bg-[#F9F5EC]">
+            <h2 className="text-lg font-semibold text-[#1E2420] mb-2">{t.catalog.emptyTitle}</h2>
+            <p className="text-sm text-[#5C6760] mb-5">{t.catalog.emptyBody}</p>
             <button
               type="button"
               onClick={() => {
@@ -220,7 +231,7 @@ export const ProductsPage: React.FC = () => {
                 setSort('featured');
                 navigate('/products');
               }}
-              className="px-5 py-2.5 min-h-[44px] rounded-md bg-[#26733E] text-white text-sm font-semibold"
+              className="px-5 py-2.5 min-h-[44px] rounded-md bg-[#1F5138] text-white text-sm font-semibold"
             >
               {t.catalog.clearFilters}
             </button>
@@ -242,8 +253,8 @@ export const ProductsPage: React.FC = () => {
                     onClick={() => setPage(p)}
                     className={`min-w-[44px] min-h-[44px] px-3 rounded-md text-sm font-semibold tabular-nums ${
                       page === p
-                        ? 'bg-[#26733E] text-white'
-                        : 'bg-white border border-[#E9E7E1] text-[#252B25] hover:bg-[#FBF7EF]'
+                        ? 'bg-[#1F5138] text-white'
+                        : 'bg-white border border-[#E5DEC9] text-[#1E2420] hover:bg-[#F9F5EC]'
                     }`}
                   >
                     {p}

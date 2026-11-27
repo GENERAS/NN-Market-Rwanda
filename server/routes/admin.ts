@@ -580,6 +580,56 @@ adminRouter.get('/overview', (_req: AuthenticatedRequest, res: Response) => {
   });
 });
 
+function sanitizeImageUrl(raw: unknown): string {
+  const val = sanitizePlainText(String(raw || ''), 300).trim();
+  if (!val) return '';
+  if (val.startsWith('/uploads/') || val.startsWith('/src/assets/')) return val;
+  if (/^https?:\/\/[^\s]+$/i.test(val)) return val;
+  return '';
+}
+
+function parseGalleryImages(raw: unknown, fallbackMain?: string): string[] {
+  const list: string[] = [];
+  const seen = new Set<string>();
+  const add = (candidate: unknown) => {
+    const clean = sanitizeImageUrl(candidate);
+    if (clean && !seen.has(clean) && list.length < 8) {
+      seen.add(clean);
+      list.push(clean);
+    }
+  };
+
+  if (fallbackMain) add(fallbackMain);
+  if (Array.isArray(raw)) {
+    for (const item of raw) add(item);
+  }
+  return list;
+}
+
+function syncProductGallery(db: ReturnType<typeof getDb>, productId: string, gallery: string[]): void {
+  db.prepare('DELETE FROM product_images WHERE product_id = ?').run(productId);
+  const now = new Date().toISOString();
+  const insert = db.prepare(
+    'INSERT INTO product_images (id, product_id, image_url, alt_text, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+  );
+  gallery.forEach((url, idx) => {
+    insert.run(`pimg-${crypto.randomUUID().slice(0, 8)}`, productId, url, '', idx, now);
+  });
+}
+
+function getGalleryMap(db: ReturnType<typeof getDb>): Map<string, string[]> {
+  const rows = db
+    .prepare('SELECT product_id, image_url FROM product_images ORDER BY sort_order ASC, created_at ASC')
+    .all() as Array<{ product_id: string; image_url: string }>;
+  const map = new Map<string, string[]>();
+  for (const r of rows) {
+    const arr = map.get(r.product_id) || [];
+    arr.push(r.image_url);
+    map.set(r.product_id, arr);
+  }
+  return map;
+}
+
 adminRouter.post('/upload', upload.single('image'), (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     res.status(400).json({ error: 'No valid image uploaded.' });
@@ -590,16 +640,33 @@ adminRouter.post('/upload', upload.single('image'), (req: AuthenticatedRequest, 
   res.status(201).json({ url });
 });
 
+adminRouter.post('/uploads', upload.array('images', 8), (req: AuthenticatedRequest, res: Response) => {
+  const files = (req.files as Express.Multer.File[] | undefined) || [];
+  if (files.length === 0) {
+    res.status(400).json({ error: 'No valid images uploaded.' });
+    return;
+  }
+  const urls = files.map((f) => `/uploads/${f.filename}`);
+  writeAuditLog(req.adminUser?.id || null, 'IMAGES_UPLOADED', 'upload', String(urls.length), { urls });
+  res.status(201).json({ urls });
+});
+
 adminRouter.get('/products', (_req: AuthenticatedRequest, res: Response) => {
   const db = getDb();
-  const items = db
+  const rows = db
     .prepare(
       `SELECT p.*, c.name_en as category_name_en, c.slug as category_slug
        FROM products p
        JOIN product_categories c ON p.category_id = c.id
        ORDER BY p.is_archived ASC, p.updated_at DESC`
     )
-    .all();
+    .all() as Array<{ id: string; main_image: string }>;
+  const galleryMap = getGalleryMap(db);
+  const items = rows.map((row) => {
+    const imgs = galleryMap.get(row.id) || [];
+    const merged = parseGalleryImages(imgs, row.main_image);
+    return { ...row, gallery_images: merged };
+  });
   res.json({ items });
 });
 
@@ -637,6 +704,10 @@ adminRouter.post('/products', (req: AuthenticatedRequest, res: Response) => {
     return;
   }
 
+  const explicitMain = sanitizeImageUrl(body.main_image);
+  const galleryImages = parseGalleryImages(body.gallery_images, explicitMain);
+  const finalMainImage = explicitMain || galleryImages[0] || '';
+
   const now = new Date().toISOString();
   const id = `prod-${crypto.randomUUID().slice(0, 8)}`;
 
@@ -661,7 +732,7 @@ adminRouter.post('/products', (req: AuthenticatedRequest, res: Response) => {
     sanitizePlainText(String(body.short_description_rw || body.short_description_en || ''), 300),
     sanitizePlainText(String(body.full_description_en || ''), 2000),
     sanitizePlainText(String(body.full_description_rw || body.full_description_en || ''), 2000),
-    sanitizePlainText(String(body.main_image || ''), 300),
+    finalMainImage,
     priceRwf,
     sanitizePlainText(String(body.quantity_label || ''), 120),
     sanitizePlainText(String(body.ingredients_en || ''), 1000),
@@ -678,9 +749,10 @@ adminRouter.post('/products', (req: AuthenticatedRequest, res: Response) => {
     now
   );
 
+  syncProductGallery(db, id, parseGalleryImages(galleryImages, finalMainImage));
   writeAuditLog(req.adminUser?.id || null, 'PRODUCT_CREATED', 'products', id, { nameEn, slug });
-  const created = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
-  res.status(201).json({ product: created });
+  const created = db.prepare('SELECT * FROM products WHERE id = ?').get(id) as Record<string, unknown>;
+  res.status(201).json({ product: { ...created, gallery_images: parseGalleryImages(galleryImages, finalMainImage) } });
 });
 
 adminRouter.put('/products/:id', (req: AuthenticatedRequest, res: Response) => {
@@ -718,6 +790,11 @@ adminRouter.put('/products/:id', (req: AuthenticatedRequest, res: Response) => {
     return;
   }
 
+  const explicitMain = sanitizeImageUrl(body.main_image);
+  const hasGalleryField = Array.isArray(body.gallery_images);
+  const galleryImages = parseGalleryImages(body.gallery_images, explicitMain);
+  const finalMainImage = explicitMain || galleryImages[0] || '';
+
   const now = new Date().toISOString();
   db.prepare(
     `UPDATE products SET
@@ -739,7 +816,7 @@ adminRouter.put('/products/:id', (req: AuthenticatedRequest, res: Response) => {
     sanitizePlainText(String(body.short_description_rw || body.short_description_en || ''), 300),
     sanitizePlainText(String(body.full_description_en || ''), 2000),
     sanitizePlainText(String(body.full_description_rw || body.full_description_en || ''), 2000),
-    sanitizePlainText(String(body.main_image || ''), 300),
+    finalMainImage,
     priceRwf,
     sanitizePlainText(String(body.quantity_label || ''), 120),
     sanitizePlainText(String(body.ingredients_en || ''), 1000),
@@ -757,9 +834,18 @@ adminRouter.put('/products/:id', (req: AuthenticatedRequest, res: Response) => {
     id
   );
 
+  if (hasGalleryField) {
+    syncProductGallery(db, id, parseGalleryImages(galleryImages, finalMainImage));
+  }
+
   writeAuditLog(req.adminUser?.id || null, 'PRODUCT_UPDATED', 'products', id, { nameEn, slug });
-  const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
-  res.json({ product: updated });
+  const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id) as Record<string, unknown>;
+  const savedGallery = (
+    db.prepare('SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC').all(id) as Array<{
+      image_url: string;
+    }>
+  ).map((r) => r.image_url);
+  res.json({ product: { ...updated, gallery_images: parseGalleryImages(savedGallery, finalMainImage) } });
 });
 
 adminRouter.delete('/products/:id', (req: AuthenticatedRequest, res: Response) => {

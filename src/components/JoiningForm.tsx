@@ -105,8 +105,8 @@ export const JoiningForm: React.FC = () => {
       </div>
 
       <div>
-        <label htmlFor="join-name" className="block text-sm font-semibold text-[#252B25] mb-1.5">
-          {t.join.nameLabel} <span className="text-[#C0392B]">*</span>
+        <label htmlFor="join-name" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
+          {t.join.nameLabel} <span className="text-[#B83227]">*</span>
         </label>
         <input
           id="join-name"
@@ -116,18 +116,18 @@ export const JoiningForm: React.FC = () => {
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           placeholder={t.join.namePlaceholder}
-          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] placeholder:text-[#5C6760]/70 focus:border-[#1F5138]"
         />
         {fieldErrors.fullName && (
-          <p role="alert" className="mt-1.5 text-xs font-medium text-[#C0392B]">
+          <p role="alert" className="mt-1.5 text-xs font-medium text-[#B83227]">
             {fieldErrors.fullName}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="join-phone" className="block text-sm font-semibold text-[#252B25] mb-1.5">
-          {t.join.phoneLabel} <span className="text-[#C0392B]">*</span>
+        <label htmlFor="join-phone" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
+          {t.join.phoneLabel} <span className="text-[#B83227]">*</span>
         </label>
         <input
           id="join-phone"
@@ -138,18 +138,18 @@ export const JoiningForm: React.FC = () => {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder={t.join.phonePlaceholder}
-          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] placeholder:text-[#5C6760]/70 focus:border-[#1F5138]"
         />
-        <p className="mt-1 text-xs text-[#647067]">{t.requestForm.phoneHelp}</p>
+        <p className="mt-1 text-xs text-[#5C6760]">{t.requestForm.phoneHelp}</p>
         {fieldErrors.phone && (
-          <p role="alert" className="mt-1 text-xs font-medium text-[#C0392B]">
+          <p role="alert" className="mt-1 text-xs font-medium text-[#B83227]">
             {fieldErrors.phone}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="join-email" className="block text-sm font-semibold text-[#252B25] mb-1.5">
+        <label htmlFor="join-email" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
           {t.join.emailLabel}
         </label>
         <input
@@ -160,45 +160,45 @@ export const JoiningForm: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t.join.emailPlaceholder}
-          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] placeholder:text-[#5C6760]/70 focus:border-[#1F5138]"
         />
-        <p className="mt-1 text-xs text-[#647067]">{t.requestForm.emailHelp}</p>
+        <p className="mt-1 text-xs text-[#5C6760]">{t.requestForm.emailHelp}</p>
         {fieldErrors.email && (
-          <p role="alert" className="mt-1 text-xs font-medium text-[#C0392B]">
+          <p role="alert" className="mt-1 text-xs font-medium text-[#B83227]">
             {fieldErrors.email}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="join-question" className="block text-sm font-semibold text-[#252B25] mb-1.5">
+        <label htmlFor="join-question" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
           {t.join.questionLabel}
         </label>
         <textarea
           id="join-question"
           name="question"
-          rows={3}
+          rows={2}
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           placeholder={t.join.questionPlaceholder}
-          className="w-full px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+          className="w-full px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] placeholder:text-[#5C6760]/70 focus:border-[#1F5138]"
         />
       </div>
 
-      <div className="p-3.5 rounded-md bg-[#FBF7EF] border border-[#E9E7E1] space-y-2.5">
+      <div className="p-3.5 rounded-md bg-[#F9F5EC] border border-[#E5DEC9] space-y-2.5">
         <label className="flex items-start gap-2.5 cursor-pointer">
           <input
             type="checkbox"
             checked={consentProcessing}
             onChange={(e) => setConsentProcessing(e.target.checked)}
-            className="mt-0.5 w-4 h-4 accent-[#26733E] shrink-0"
+            className="mt-0.5 w-4 h-4 accent-[#1F5138] shrink-0"
           />
-          <span className="text-xs font-medium text-[#252B25]">
-            {t.join.consentRequiredLabel} <span className="text-[#C0392B]">*</span>
+          <span className="text-xs font-medium text-[#1E2420]">
+            {t.join.consentRequiredLabel} <span className="text-[#B83227]">*</span>
           </span>
         </label>
         {fieldErrors.consentProcessing && (
-          <p role="alert" className="text-xs font-medium text-[#C0392B]">
+          <p role="alert" className="text-xs font-medium text-[#B83227]">
             {fieldErrors.consentProcessing}
           </p>
         )}
@@ -208,14 +208,14 @@ export const JoiningForm: React.FC = () => {
             type="checkbox"
             checked={consentMarketing}
             onChange={(e) => setConsentMarketing(e.target.checked)}
-            className="mt-0.5 w-4 h-4 accent-[#26733E] shrink-0"
+            className="mt-0.5 w-4 h-4 accent-[#1F5138] shrink-0"
           />
-          <span className="text-xs text-[#647067]">{t.join.marketingOptInLabel}</span>
+          <span className="text-xs text-[#5C6760]">{t.join.marketingOptInLabel}</span>
         </label>
       </div>
 
       {submitError && (
-        <div role="alert" className="p-3 rounded-md bg-red-50 border border-[#C0392B]/30 text-sm text-[#C0392B]">
+        <div role="alert" className="p-3 rounded-md bg-red-50 border border-[#B83227]/30 text-sm text-[#B83227]">
           {submitError}
         </div>
       )}
@@ -223,7 +223,7 @@ export const JoiningForm: React.FC = () => {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full min-h-[48px] px-6 py-3 text-base font-semibold text-white bg-[#26733E] hover:bg-[#1e5c31] disabled:opacity-60 rounded-md transition-colors"
+        className="w-full min-h-[48px] px-6 py-3 text-base font-semibold text-white bg-[#1F5138] hover:bg-[#173D2A] disabled:opacity-60 rounded-md transition-colors"
       >
         {submitting ? t.join.submitting : t.join.submitButton}
       </button>

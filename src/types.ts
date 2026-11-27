@@ -26,6 +26,7 @@ export interface Product {
   full_description_en: string;
   full_description_rw: string;
   main_image: string;
+  gallery_images?: string[];
   price_rwf: number | null;
   currency: string;
   quantity_label: string;

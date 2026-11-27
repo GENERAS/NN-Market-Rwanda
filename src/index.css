@@ -2,32 +2,35 @@
 
 @layer base {
   :root {
-    --nn-gold: #A87936;
-    --nn-green: #26733E;
+    --nn-gold: #9C661F;
+    --nn-gold-hover: #815316;
+    --nn-green: #1F5138;
+    --nn-green-hover: #173D2A;
     --nn-white: #FFFFFF;
-    --nn-ink: #252B25;
-    --nn-muted: #647067;
-    --nn-light-gold: #FBF7EF;
-    --nn-light-green: #F1F7F1;
-    --nn-border: #E9E7E1;
-    --nn-error: #C0392B;
+    --nn-ink: #1E2420;
+    --nn-muted: #5C6760;
+    --nn-light-gold: #F9F5EC;
+    --nn-light-green: #EEF5F0;
+    --nn-border: #E5DEC9;
+    --nn-error: #B83227;
   }
 
   html {
     font-family: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: #252B25;
-    background-color: #FFFFFF;
+    color: var(--nn-ink);
+    background-color: var(--nn-white);
     scroll-behavior: smooth;
   }
 
   body {
     margin: 0;
-    background-color: #FFFFFF;
-    color: #252B25;
+    background-color: var(--nn-white);
+    color: var(--nn-ink);
     line-height: 1.6;
   }
 
   h1, h2, h3, h4 {
+    font-family: 'Plus Jakarta Sans', 'Manrope', system-ui, sans-serif;
     text-wrap: balance;
   }
 
@@ -36,13 +39,17 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid #26733E;
+    outline: 2px solid var(--nn-green);
     outline-offset: 2px;
   }
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -108,9 +108,9 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {attachedProduct && attachedName && (
-        <div className="p-3.5 rounded-md bg-[#FBF7EF] border border-[#E9E7E1]">
-          <div className="text-xs font-medium text-[#647067]">{t.requestForm.attachedProductLabel}</div>
-          <div className="text-sm font-semibold text-[#252B25] mt-0.5">{attachedName}</div>
+        <div className="p-3.5 rounded-md bg-[#F9F5EC] border border-[#E5DEC9]">
+          <div className="text-xs font-medium text-[#5C6760]">{t.requestForm.attachedProductLabel}</div>
+          <div className="text-sm font-semibold text-[#1E2420] mt-0.5">{attachedName}</div>
         </div>
       )}
 
@@ -129,8 +129,8 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
       </div>
 
       <div>
-        <label htmlFor="req-name" className="block text-sm font-semibold text-[#252B25] mb-1.5">
-          {t.requestForm.nameLabel} <span className="text-[#C0392B]">*</span>
+        <label htmlFor="req-name" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
+          {t.requestForm.nameLabel} <span className="text-[#B83227]">*</span>
         </label>
         <input
           id="req-name"
@@ -140,18 +140,18 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t.requestForm.namePlaceholder}
-          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] placeholder:text-[#5C6760]/70 focus:border-[#1F5138]"
         />
         {fieldErrors.name && (
-          <p role="alert" className="mt-1.5 text-xs font-medium text-[#C0392B]">
+          <p role="alert" className="mt-1.5 text-xs font-medium text-[#B83227]">
             {fieldErrors.name}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="req-phone" className="block text-sm font-semibold text-[#252B25] mb-1.5">
-          {t.requestForm.phoneLabel} <span className="text-[#C0392B]">*</span>
+        <label htmlFor="req-phone" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
+          {t.requestForm.phoneLabel} <span className="text-[#B83227]">*</span>
         </label>
         <input
           id="req-phone"
@@ -162,18 +162,18 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder={t.requestForm.phonePlaceholder}
-          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] placeholder:text-[#5C6760]/70 focus:border-[#1F5138]"
         />
-        <p className="mt-1 text-xs text-[#647067]">{t.requestForm.phoneHelp}</p>
+        <p className="mt-1 text-xs text-[#5C6760]">{t.requestForm.phoneHelp}</p>
         {fieldErrors.phone && (
-          <p role="alert" className="mt-1 text-xs font-medium text-[#C0392B]">
+          <p role="alert" className="mt-1 text-xs font-medium text-[#B83227]">
             {fieldErrors.phone}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="req-email" className="block text-sm font-semibold text-[#252B25] mb-1.5">
+        <label htmlFor="req-email" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
           {t.requestForm.emailLabel}
         </label>
         <input
@@ -184,11 +184,11 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t.requestForm.emailPlaceholder}
-          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+          className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] placeholder:text-[#5C6760]/70 focus:border-[#1F5138]"
         />
-        <p className="mt-1 text-xs text-[#647067]">{t.requestForm.emailHelp}</p>
+        <p className="mt-1 text-xs text-[#5C6760]">{t.requestForm.emailHelp}</p>
         {fieldErrors.email && (
-          <p role="alert" className="mt-1 text-xs font-medium text-[#C0392B]">
+          <p role="alert" className="mt-1 text-xs font-medium text-[#B83227]">
             {fieldErrors.email}
           </p>
         )}
@@ -196,7 +196,7 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
 
       {!attachedProduct && (
         <div>
-          <label htmlFor="req-product" className="block text-sm font-semibold text-[#252B25] mb-1.5">
+          <label htmlFor="req-product" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
             {t.requestForm.productSelectLabel}
           </label>
           <select
@@ -204,7 +204,7 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
             name="productId"
             value={selectedProductId}
             onChange={(e) => setSelectedProductId(e.target.value)}
-            className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] focus:border-[#26733E]"
+            className="w-full min-h-[46px] px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] focus:border-[#1F5138]"
           >
             <option value="">{t.requestForm.productSelectDefault}</option>
             {availableProducts.map((p) => (
@@ -217,7 +217,7 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
       )}
 
       <div>
-        <label htmlFor="req-message" className="block text-sm font-semibold text-[#252B25] mb-1.5">
+        <label htmlFor="req-message" className="block text-sm font-semibold text-[#1E2420] mb-1.5">
           {t.requestForm.messageLabel}
         </label>
         <textarea
@@ -227,26 +227,26 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={t.requestForm.messagePlaceholder}
-          className="w-full px-3.5 py-2.5 text-base bg-white border border-[#E9E7E1] rounded-md text-[#252B25] placeholder:text-[#647067]/70 focus:border-[#26733E]"
+          className="w-full px-3.5 py-2.5 text-base bg-white border border-[#E5DEC9] rounded-md text-[#1E2420] placeholder:text-[#5C6760]/70 focus:border-[#1F5138]"
         />
       </div>
 
-      <div className="p-3.5 rounded-md bg-[#F1F7F1] border border-[#E9E7E1] space-y-2.5">
-        <p className="text-xs text-[#647067] leading-relaxed">{t.requestForm.consentNotice}</p>
+      <div className="p-3.5 rounded-md bg-[#EEF5F0] border border-[#E5DEC9] space-y-2.5">
+        <p className="text-xs text-[#5C6760] leading-relaxed">{t.requestForm.consentNotice}</p>
 
         <label className="flex items-start gap-2.5 cursor-pointer">
           <input
             type="checkbox"
             checked={consentProcessing}
             onChange={(e) => setConsentProcessing(e.target.checked)}
-            className="mt-0.5 w-4 h-4 accent-[#26733E] shrink-0"
+            className="mt-0.5 w-4 h-4 accent-[#1F5138] shrink-0"
           />
-          <span className="text-xs font-medium text-[#252B25]">
-            {t.requestForm.consentRequiredLabel} <span className="text-[#C0392B]">*</span>
+          <span className="text-xs font-medium text-[#1E2420]">
+            {t.requestForm.consentRequiredLabel} <span className="text-[#B83227]">*</span>
           </span>
         </label>
         {fieldErrors.consentProcessing && (
-          <p role="alert" className="text-xs font-medium text-[#C0392B]">
+          <p role="alert" className="text-xs font-medium text-[#B83227]">
             {fieldErrors.consentProcessing}
           </p>
         )}
@@ -256,14 +256,14 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
             type="checkbox"
             checked={consentMarketing}
             onChange={(e) => setConsentMarketing(e.target.checked)}
-            className="mt-0.5 w-4 h-4 accent-[#26733E] shrink-0"
+            className="mt-0.5 w-4 h-4 accent-[#1F5138] shrink-0"
           />
-          <span className="text-xs text-[#647067]">{t.requestForm.marketingOptInLabel}</span>
+          <span className="text-xs text-[#5C6760]">{t.requestForm.marketingOptInLabel}</span>
         </label>
       </div>
 
       {submitError && (
-        <div role="alert" className="p-3 rounded-md bg-red-50 border border-[#C0392B]/30 text-sm text-[#C0392B]">
+        <div role="alert" className="p-3 rounded-md bg-red-50 border border-[#B83227]/30 text-sm text-[#B83227]">
           {submitError}
         </div>
       )}
@@ -271,7 +271,7 @@ export const ProductRequestForm: React.FC<ProductRequestFormProps> = ({
       <button
         type="submit"
         disabled={submitting}
-        className="w-full min-h-[48px] px-6 py-3 text-base font-semibold text-white bg-[#26733E] hover:bg-[#1e5c31] disabled:opacity-60 rounded-md transition-colors"
+        className="w-full min-h-[48px] px-6 py-3 text-base font-semibold text-white bg-[#1F5138] hover:bg-[#173D2A] disabled:opacity-60 rounded-md transition-colors"
       >
         {submitting ? t.requestForm.submitting : t.requestForm.submitButton}
       </button>

@@ -173,34 +173,34 @@ export const AdminContentSettingsTab: React.FC<{
     }
   }
 
-  if (loading) return <p className="text-sm text-[#647067]">Loading...</p>;
+  if (loading) return <p className="text-sm text-[#5C6760]">Loading...</p>;
 
   if (mode === 'settings') {
     return (
       <div className="space-y-6">
         {notice && (
-          <div className="p-3.5 rounded-md bg-[#F1F7F1] border border-[#26733E]/30 text-sm text-[#26733E] font-medium">
+          <div className="p-3.5 rounded-lg bg-[#EEF5F0] border border-[#1F5138]/30 text-sm text-[#1F5138] font-medium">
             {notice}
           </div>
         )}
         {error && (
-          <div role="alert" className="p-3.5 rounded-md bg-red-50 border border-[#C0392B]/30 text-sm text-[#C0392B]">
+          <div role="alert" className="p-3.5 rounded-lg bg-red-50 border border-[#B83227]/30 text-sm text-[#B83227]">
             {error}
           </div>
         )}
 
-        {/* Admin Account & Credentials */}
-        <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-4">
+        <section className="bg-white border border-[#E5DEC9] rounded-xl p-4 sm:p-6 space-y-4">
           <div>
-            <h2 className="text-lg font-bold text-[#252B25]">Admin Login &amp; Credentials</h2>
-            <p className="text-xs text-[#647067]">
-              Change your admin email, phone number, or password anytime. When ready to go live, set <code className="px-1 py-0.5 bg-[#FBF7EF] rounded">LOCK_ADMIN=true</code> in your environment variables to require password-only sign-in.
+            <h2 className="text-lg font-bold text-[#1E2420]">Admin Login &amp; Credentials</h2>
+            <p className="text-xs text-[#5C6760]">
+              Change your admin email, phone number, or password anytime. When ready to go live, set{' '}
+              <code className="px-1 py-0.5 bg-[#F9F5EC] rounded">LOCK_ADMIN=true</code> in your environment variables to require password-only sign-in.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="set-adm-name" className="block text-xs font-semibold text-[#252B25] mb-1">
+              <label htmlFor="set-adm-name" className="block text-xs font-semibold text-[#1E2420] mb-1">
                 Admin Full Name
               </label>
               <input
@@ -208,12 +208,12 @@ export const AdminContentSettingsTab: React.FC<{
                 type="text"
                 value={credFullName}
                 onChange={(e) => setCredFullName(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
+                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
               />
             </div>
 
             <div>
-              <label htmlFor="set-adm-email" className="block text-xs font-semibold text-[#252B25] mb-1">
+              <label htmlFor="set-adm-email" className="block text-xs font-semibold text-[#1E2420] mb-1">
                 Admin Login Email
               </label>
               <input
@@ -221,12 +221,12 @@ export const AdminContentSettingsTab: React.FC<{
                 type="email"
                 value={credEmail}
                 onChange={(e) => setCredEmail(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
+                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
               />
             </div>
 
             <div>
-              <label htmlFor="set-adm-phone" className="block text-xs font-semibold text-[#252B25] mb-1">
+              <label htmlFor="set-adm-phone" className="block text-xs font-semibold text-[#1E2420] mb-1">
                 Admin Login Phone (Rwanda)
               </label>
               <input
@@ -235,12 +235,12 @@ export const AdminContentSettingsTab: React.FC<{
                 value={credPhone}
                 onChange={(e) => setCredPhone(e.target.value)}
                 placeholder="07XXXXXXXX"
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
+                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
               />
             </div>
 
             <div>
-              <label htmlFor="set-adm-pass" className="block text-xs font-semibold text-[#252B25] mb-1">
+              <label htmlFor="set-adm-pass" className="block text-xs font-semibold text-[#1E2420] mb-1">
                 New Password (leave blank to keep current)
               </label>
               <input
@@ -249,7 +249,7 @@ export const AdminContentSettingsTab: React.FC<{
                 value={credPassword}
                 onChange={(e) => setCredPassword(e.target.value)}
                 placeholder="Min 6 characters"
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
+                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
               />
             </div>
           </div>
@@ -259,7 +259,7 @@ export const AdminContentSettingsTab: React.FC<{
               type="button"
               disabled={savingCreds}
               onClick={saveCredentials}
-              className="px-5 py-2.5 min-h-[42px] rounded-md bg-[#26733E] hover:bg-[#1e5c31] text-white text-xs font-semibold disabled:opacity-60"
+              className="px-5 py-2.5 min-h-[42px] rounded-md bg-[#1F5138] hover:bg-[#173D2A] text-white text-xs font-semibold disabled:opacity-60"
             >
               {savingCreds ? 'Updating...' : 'Update Admin Credentials'}
             </button>
@@ -267,143 +267,140 @@ export const AdminContentSettingsTab: React.FC<{
         </section>
 
         <form onSubmit={saveSettings} className="space-y-6">
-
-        {/* Private Contact & Referral Settings */}
-        <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-4">
-          <div>
-            <h2 className="text-lg font-bold text-[#252B25]">Private Contact &amp; Referral Settings</h2>
-            <p className="text-xs text-[#647067]">
-              Strictly protected at the server level. Never returned in public page loads; only revealed after a visitor submits a valid request or joining application.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <section className="bg-white border border-[#E5DEC9] rounded-xl p-4 sm:p-6 space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">
-                Agent WhatsApp Number (Rwanda)
-              </label>
-              <input
-                type="tel"
-                value={settings.agent_whatsapp || ''}
-                onChange={(e) => setSettings({ ...settings, agent_whatsapp: e.target.value })}
-                placeholder="+250 788 123 456"
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
+              <h2 className="text-lg font-bold text-[#1E2420]">Private Contact &amp; Referral Settings</h2>
+              <p className="text-xs text-[#5C6760]">
+                Strictly protected at the server level. Never returned in public page loads; only revealed after a visitor submits a valid request or joining application.
+              </p>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">
+                  Agent WhatsApp Number (Rwanda)
+                </label>
+                <input
+                  type="tel"
+                  value={settings.agent_whatsapp || ''}
+                  onChange={(e) => setSettings({ ...settings, agent_whatsapp: e.target.value })}
+                  placeholder="+250 788 123 456"
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">
+                  Agent Phone Number (Rwanda)
+                </label>
+                <input
+                  type="tel"
+                  value={settings.agent_phone || ''}
+                  onChange={(e) => setSettings({ ...settings, agent_phone: e.target.value })}
+                  placeholder="+250 788 123 456"
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">
+                  N_NUTRITION_REFERRAL_URL (External Registration Link)
+                </label>
+                <input
+                  type="url"
+                  value={settings.n_nutrition_referral_url || ''}
+                  onChange={(e) => setSettings({ ...settings, n_nutrition_referral_url: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">Private Business Email</label>
+                <input
+                  type="email"
+                  value={settings.business_email || ''}
+                  onChange={(e) => setSettings({ ...settings, business_email: e.target.value })}
+                  placeholder="agent@example.com"
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="bg-white border border-[#E5DEC9] rounded-xl p-4 sm:p-6 space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">
-                Agent Phone Number (Rwanda)
-              </label>
-              <input
-                type="tel"
-                value={settings.agent_phone || ''}
-                onChange={(e) => setSettings({ ...settings, agent_phone: e.target.value })}
-                placeholder="+250 788 123 456"
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
+              <h2 className="text-lg font-bold text-[#1E2420]">Public Website &amp; SEO Defaults</h2>
+              <p className="text-xs text-[#5C6760]">Displayed publicly across storefront pages and metadata.</p>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">
-                N_NUTRITION_REFERRAL_URL (External Registration Link)
-              </label>
-              <input
-                type="url"
-                value={settings.n_nutrition_referral_url || ''}
-                onChange={(e) => setSettings({ ...settings, n_nutrition_referral_url: e.target.value })}
-                placeholder="https://..."
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">Website Name</label>
+                <input
+                  type="text"
+                  value={settings.site_name || ''}
+                  onChange={(e) => setSettings({ ...settings, site_name: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">Agent Display Identity</label>
+                <input
+                  type="text"
+                  value={settings.agent_display_name || ''}
+                  onChange={(e) => setSettings({ ...settings, agent_display_name: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">Default SEO Title</label>
+                <input
+                  type="text"
+                  value={settings.seo_default_title || ''}
+                  onChange={(e) => setSettings({ ...settings, seo_default_title: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">Default SEO Description</label>
+                <textarea
+                  rows={2}
+                  value={settings.seo_default_description || ''}
+                  onChange={(e) => setSettings({ ...settings, seo_default_description: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">Request Confirmation Title (EN)</label>
+                <input
+                  type="text"
+                  value={settings.request_success_title_en || ''}
+                  onChange={(e) => setSettings({ ...settings, request_success_title_en: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[#1E2420] mb-1">Request Confirmation Title (RW)</label>
+                <input
+                  type="text"
+                  value={settings.request_success_title_rw || ''}
+                  onChange={(e) => setSettings({ ...settings, request_success_title_rw: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E5DEC9] rounded-md"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">Private Business Email</label>
-              <input
-                type="email"
-                value={settings.business_email || ''}
-                onChange={(e) => setSettings({ ...settings, business_email: e.target.value })}
-                placeholder="agent@example.com"
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="px-6 py-2.5 min-h-[44px] rounded-md bg-[#1F5138] hover:bg-[#173D2A] text-white text-sm font-semibold"
+              >
+                Save All Settings
+              </button>
             </div>
-          </div>
-        </section>
-
-        {/* Public General & SEO Settings */}
-        <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-4">
-          <div>
-            <h2 className="text-lg font-bold text-[#252B25]">Public Website &amp; SEO Defaults</h2>
-            <p className="text-xs text-[#647067]">Displayed publicly across storefront pages and metadata.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">Website Name</label>
-              <input
-                type="text"
-                value={settings.site_name || ''}
-                onChange={(e) => setSettings({ ...settings, site_name: e.target.value })}
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">Agent Display Identity</label>
-              <input
-                type="text"
-                value={settings.agent_display_name || ''}
-                onChange={(e) => setSettings({ ...settings, agent_display_name: e.target.value })}
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">Default SEO Title</label>
-              <input
-                type="text"
-                value={settings.seo_default_title || ''}
-                onChange={(e) => setSettings({ ...settings, seo_default_title: e.target.value })}
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">Default SEO Description</label>
-              <textarea
-                rows={2}
-                value={settings.seo_default_description || ''}
-                onChange={(e) => setSettings({ ...settings, seo_default_description: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">Request Confirmation Title (EN)</label>
-              <input
-                type="text"
-                value={settings.request_success_title_en || ''}
-                onChange={(e) => setSettings({ ...settings, request_success_title_en: e.target.value })}
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-[#252B25] mb-1">Request Confirmation Title (RW)</label>
-              <input
-                type="text"
-                value={settings.request_success_title_rw || ''}
-                onChange={(e) => setSettings({ ...settings, request_success_title_rw: e.target.value })}
-                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
-              />
-            </div>
-          </div>
-
-          <div className="pt-2">
-            <button
-              type="submit"
-              className="px-6 py-2.5 min-h-[44px] rounded-md bg-[#26733E] text-white text-sm font-semibold"
-            >
-              Save All Settings
-            </button>
-          </div>
-        </section>
-      </form>
+          </section>
+        </form>
       </div>
     );
   }
@@ -411,30 +408,29 @@ export const AdminContentSettingsTab: React.FC<{
   return (
     <div className="space-y-8">
       {notice && (
-        <div className="p-3.5 rounded-md bg-[#F1F7F1] border border-[#26733E]/30 text-sm text-[#26733E] font-medium">
+        <div className="p-3.5 rounded-lg bg-[#EEF5F0] border border-[#1F5138]/30 text-sm text-[#1F5138] font-medium">
           {notice}
         </div>
       )}
       {error && (
-        <div role="alert" className="p-3.5 rounded-md bg-red-50 border border-[#C0392B]/30 text-sm text-[#C0392B]">
+        <div role="alert" className="p-3.5 rounded-lg bg-red-50 border border-[#B83227]/30 text-sm text-[#B83227]">
           {error}
         </div>
       )}
 
-      {/* Website Content Blocks */}
-      <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-6">
+      <section className="bg-white border border-[#E5DEC9] rounded-xl p-4 sm:p-6 space-y-6">
         <div>
-          <h2 className="text-lg font-bold text-[#252B25]">Editable Bilingual Website Content</h2>
-          <p className="text-xs text-[#647067]">
+          <h2 className="text-lg font-bold text-[#1E2420]">Editable Bilingual Website Content</h2>
+          <p className="text-xs text-[#5C6760]">
             Update Homepage, Joining Requirements, Costs, About, Privacy Policy, and Terms without modifying code.
           </p>
         </div>
 
         <div className="space-y-6">
           {blocks.map((block, idx) => (
-            <div key={block.key} className="p-4 rounded-lg border border-[#E9E7E1] bg-[#FBF7EF]/40 space-y-3">
+            <div key={block.key} className="p-4 rounded-lg border border-[#E5DEC9] bg-[#F9F5EC]/50 space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <span className="text-xs font-bold text-[#A87936]">
+                <span className="text-xs font-bold text-[#9C661F]">
                   {block.section.toUpperCase()} · {block.key}
                 </span>
                 <select
@@ -444,7 +440,7 @@ export const AdminContentSettingsTab: React.FC<{
                     next[idx] = { ...block, verification_status: e.target.value as ContentBlock['verification_status'] };
                     setBlocks(next);
                   }}
-                  className="min-h-[36px] px-2.5 py-1 text-xs bg-white border border-[#E9E7E1] rounded"
+                  className="min-h-[38px] px-2.5 py-1 text-xs bg-white border border-[#E5DEC9] rounded"
                 >
                   <option value="verified">Verified</option>
                   <option value="awaiting_confirmation">Awaiting confirmation</option>
@@ -462,7 +458,7 @@ export const AdminContentSettingsTab: React.FC<{
                     setBlocks(next);
                   }}
                   placeholder="Title (EN)"
-                  className="min-h-[38px] px-3 py-1.5 text-sm bg-white border border-[#E9E7E1] rounded"
+                  className="min-h-[38px] px-3 py-1.5 text-sm bg-white border border-[#E5DEC9] rounded"
                 />
                 <input
                   type="text"
@@ -473,7 +469,7 @@ export const AdminContentSettingsTab: React.FC<{
                     setBlocks(next);
                   }}
                   placeholder="Title (RW)"
-                  className="min-h-[38px] px-3 py-1.5 text-sm bg-white border border-[#E9E7E1] rounded"
+                  className="min-h-[38px] px-3 py-1.5 text-sm bg-white border border-[#E5DEC9] rounded"
                 />
                 <textarea
                   rows={3}
@@ -484,7 +480,7 @@ export const AdminContentSettingsTab: React.FC<{
                     setBlocks(next);
                   }}
                   placeholder="Body (EN)"
-                  className="px-3 py-2 text-xs bg-white border border-[#E9E7E1] rounded"
+                  className="px-3 py-2 text-xs bg-white border border-[#E5DEC9] rounded"
                 />
                 <textarea
                   rows={3}
@@ -495,14 +491,14 @@ export const AdminContentSettingsTab: React.FC<{
                     setBlocks(next);
                   }}
                   placeholder="Body (RW)"
-                  className="px-3 py-2 text-xs bg-white border border-[#E9E7E1] rounded"
+                  className="px-3 py-2 text-xs bg-white border border-[#E5DEC9] rounded"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={() => saveBlock(block)}
-                className="px-4 py-2 min-h-[38px] rounded bg-[#26733E] text-white text-xs font-semibold"
+                className="px-4 py-2 min-h-[40px] rounded bg-[#1F5138] hover:bg-[#173D2A] text-white text-xs font-semibold"
               >
                 Save {block.key}
               </button>
@@ -511,15 +507,14 @@ export const AdminContentSettingsTab: React.FC<{
         </div>
       </section>
 
-      {/* FAQs Management */}
-      <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-5">
-        <h2 className="text-lg font-bold text-[#252B25]">FAQ Management</h2>
-        <form onSubmit={addFaq} className="p-4 rounded-lg bg-[#FBF7EF] border border-[#E9E7E1] space-y-3">
+      <section className="bg-white border border-[#E5DEC9] rounded-xl p-4 sm:p-6 space-y-5">
+        <h2 className="text-lg font-bold text-[#1E2420]">FAQ Management</h2>
+        <form onSubmit={addFaq} className="p-4 rounded-lg bg-[#F9F5EC] border border-[#E5DEC9] space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <select
               value={newFaq.scope}
               onChange={(e) => setNewFaq({ ...newFaq, scope: e.target.value })}
-              className="min-h-[40px] px-3 py-1.5 text-sm bg-white border border-[#E9E7E1] rounded"
+              className="min-h-[40px] px-3 py-1.5 text-sm bg-white border border-[#E5DEC9] rounded"
             >
               <option value="general">General</option>
               <option value="joining">Joining</option>
@@ -530,14 +525,14 @@ export const AdminContentSettingsTab: React.FC<{
               value={newFaq.question_en}
               onChange={(e) => setNewFaq({ ...newFaq, question_en: e.target.value })}
               placeholder="Question (English)"
-              className="min-h-[40px] px-3 py-1.5 text-sm bg-white border border-[#E9E7E1] rounded"
+              className="min-h-[40px] px-3 py-1.5 text-sm bg-white border border-[#E5DEC9] rounded"
             />
             <input
               type="text"
               value={newFaq.question_rw}
               onChange={(e) => setNewFaq({ ...newFaq, question_rw: e.target.value })}
               placeholder="Question (Kinyarwanda)"
-              className="min-h-[40px] px-3 py-1.5 text-sm bg-white border border-[#E9E7E1] rounded"
+              className="min-h-[40px] px-3 py-1.5 text-sm bg-white border border-[#E5DEC9] rounded"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -547,36 +542,36 @@ export const AdminContentSettingsTab: React.FC<{
               value={newFaq.answer_en}
               onChange={(e) => setNewFaq({ ...newFaq, answer_en: e.target.value })}
               placeholder="Answer (English)"
-              className="px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded"
+              className="px-3 py-2 text-sm bg-white border border-[#E5DEC9] rounded"
             />
             <textarea
               rows={2}
               value={newFaq.answer_rw}
               onChange={(e) => setNewFaq({ ...newFaq, answer_rw: e.target.value })}
               placeholder="Answer (Kinyarwanda)"
-              className="px-3 py-2 text-sm bg-white border border-[#E9E7E1] rounded"
+              className="px-3 py-2 text-sm bg-white border border-[#E5DEC9] rounded"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 min-h-[40px] rounded bg-[#26733E] text-white text-xs font-semibold"
+            className="px-4 py-2 min-h-[42px] rounded bg-[#1F5138] hover:bg-[#173D2A] text-white text-xs font-semibold"
           >
             Add FAQ
           </button>
         </form>
 
-        <div className="divide-y divide-[#E9E7E1]">
+        <div className="divide-y divide-[#E5DEC9]">
           {faqs.map((faq) => (
             <div key={faq.id} className="py-3 flex items-start justify-between gap-4">
               <div>
-                <div className="text-xs font-semibold text-[#A87936]">{faq.scope}</div>
-                <div className="text-sm font-semibold text-[#252B25]">{faq.question_en}</div>
-                <div className="text-xs text-[#647067] mt-0.5">{faq.answer_en}</div>
+                <div className="text-xs font-semibold text-[#9C661F]">{faq.scope}</div>
+                <div className="text-sm font-semibold text-[#1E2420]">{faq.question_en}</div>
+                <div className="text-xs text-[#5C6760] mt-0.5">{faq.answer_en}</div>
               </div>
               <button
                 type="button"
                 onClick={() => deleteFaq(faq.id)}
-                className="text-xs font-semibold text-[#C0392B] hover:underline shrink-0"
+                className="text-xs font-semibold text-[#B83227] hover:underline shrink-0"
               >
                 Delete
               </button>

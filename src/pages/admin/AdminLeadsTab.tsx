@@ -214,11 +214,11 @@ export const AdminLeadsTab: React.FC<{
 
   if (mode === 'customers') {
     return (
-      <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-5">
+      <section className="bg-white border border-[#E5DEC9] rounded-xl p-4 sm:p-6 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-bold text-[#252B25] mb-1">Customer Directory</h2>
-            <p className="text-xs text-[#647067]">
+            <h2 className="text-lg font-bold text-[#1E2420] mb-1">Customer Directory</h2>
+            <p className="text-xs text-[#5C6760]">
               Private record of customers grouped by normalized Rwandan phone number. Never exposed publicly.
             </p>
           </div>
@@ -228,13 +228,13 @@ export const AdminLeadsTab: React.FC<{
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search name, phone, email..."
-              className="w-full sm:w-64 min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
+              className="w-full sm:w-64 min-h-[42px] px-3 py-1.5 text-sm border border-[#E5DEC9] rounded-md"
             />
             <button
               type="button"
               onClick={handleExportCsv}
               disabled={customers.length === 0}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-md border border-[#E9E7E1] text-xs font-semibold text-[#252B25] hover:border-[#26733E] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[42px] rounded-md border border-[#E5DEC9] text-xs font-semibold text-[#1E2420] hover:border-[#1F5138] disabled:opacity-50"
             >
               <Download className="w-3.5 h-3.5" aria-hidden="true" />
               Export CSV
@@ -243,79 +243,134 @@ export const AdminLeadsTab: React.FC<{
         </div>
 
         {notice && (
-          <div className="p-3 rounded-md bg-[#F1F7F1] border border-[#26733E]/30 text-xs font-medium text-[#26733E]">
+          <div className="p-3 rounded-md bg-[#EEF5F0] border border-[#1F5138]/30 text-xs font-medium text-[#1F5138]">
             {notice}
           </div>
         )}
 
         {loading ? (
-          <p className="text-sm text-[#647067]">Loading customers...</p>
+          <p className="text-sm text-[#5C6760]">Loading customers...</p>
         ) : customers.length === 0 ? (
-          <p className="text-sm text-[#647067]">No customer inquiries recorded yet.</p>
+          <p className="text-sm text-[#5C6760]">No customer inquiries recorded yet.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-[#E9E7E1] text-xs text-[#647067]">
-                  <th className="py-2.5 pr-4 font-semibold">Name</th>
-                  <th className="py-2.5 pr-4 font-semibold">Phone</th>
-                  <th className="py-2.5 pr-4 font-semibold">Email</th>
-                  <th className="py-2.5 pr-4 font-semibold text-right">Requests</th>
-                  <th className="py-2.5 pr-4 font-semibold text-right">Joining</th>
-                  <th className="py-2.5 pr-4 font-semibold">Marketing Consent</th>
-                  <th className="py-2.5 pr-4 font-semibold">Last Activity</th>
-                  <th className="py-2.5 font-semibold text-right">Privacy</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E9E7E1]">
-                {customers.map((c) => (
-                  <tr key={c.phone_normalized}>
-                    <td className="py-3 pr-4 font-semibold text-[#252B25]">{c.latest_name}</td>
-                    <td className="py-3 pr-4 tabular-nums text-[#252B25]">{c.phone_normalized}</td>
-                    <td className="py-3 pr-4 text-xs text-[#647067]">{c.latest_email || '—'}</td>
-                    <td className="py-3 pr-4 text-right tabular-nums">{c.request_count}</td>
-                    <td className="py-3 pr-4 text-right tabular-nums">{c.application_count}</td>
-                    <td className="py-3 pr-4 text-xs">
-                      {c.marketing_opt_in === 1 ? 'Opted in' : 'Request response only'}
-                    </td>
-                    <td className="py-3 pr-4 text-xs text-[#647067] tabular-nums">
+          <>
+            {/* Mobile Customer Cards */}
+            <div className="md:hidden space-y-3">
+              {customers.map((c) => (
+                <div key={c.phone_normalized} className="p-3.5 rounded-lg border border-[#E5DEC9] bg-[#F9F5EC]/60 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="font-bold text-sm text-[#1E2420]">{c.latest_name}</div>
+                      <div className="text-xs font-semibold text-[#1F5138] tabular-nums">{c.phone_normalized}</div>
+                      {c.latest_email && <div className="text-xs text-[#5C6760]">{c.latest_email}</div>}
+                    </div>
+                    <span className="text-[11px] text-[#5C6760] tabular-nums">
                       {new Date(c.last_activity).toLocaleDateString()}
-                    </td>
-                    <td className="py-3 text-right whitespace-nowrap">
-                      {confirmDeletePhone === c.phone_normalized ? (
-                        <span className="inline-flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => deleteCustomerRecord(c.phone_normalized)}
-                            className="px-2.5 py-1 text-xs font-semibold bg-[#C0392B] text-white rounded"
-                          >
-                            Confirm Delete
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setConfirmDeletePhone(null)}
-                            className="px-2.5 py-1 text-xs font-semibold border border-[#E9E7E1] text-[#252B25] rounded"
-                          >
-                            Cancel
-                          </button>
-                        </span>
-                      ) : (
+                    </span>
+                  </div>
+                  <div className="text-xs text-[#5C6760] flex flex-wrap gap-3">
+                    <span className="tabular-nums">Requests: {c.request_count}</span>
+                    <span className="tabular-nums">Joining: {c.application_count}</span>
+                    <span>{c.marketing_opt_in === 1 ? 'Opted in' : 'Request response only'}</span>
+                  </div>
+                  <div className="pt-1">
+                    {confirmDeletePhone === c.phone_normalized ? (
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => setConfirmDeletePhone(c.phone_normalized)}
-                          aria-label={`Remove record for ${c.phone_normalized}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#C0392B] hover:bg-red-50 rounded"
+                          onClick={() => deleteCustomerRecord(c.phone_normalized)}
+                          className="min-h-[38px] px-3 py-1.5 text-xs font-semibold bg-[#B83227] text-white rounded-md"
                         >
-                          <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
-                          Remove
+                          Confirm Delete
                         </button>
-                      )}
-                    </td>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeletePhone(null)}
+                          className="min-h-[38px] px-3 py-1.5 text-xs font-semibold border border-[#E5DEC9] bg-white text-[#1E2420] rounded-md"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDeletePhone(c.phone_normalized)}
+                        className="inline-flex items-center gap-1 min-h-[38px] px-3 py-1.5 text-xs font-semibold text-[#B83227] bg-white border border-[#E5DEC9] rounded-md"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                        Remove Record
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Customer Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-[#E5DEC9] text-xs text-[#5C6760]">
+                    <th className="py-2.5 pr-4 font-semibold">Name</th>
+                    <th className="py-2.5 pr-4 font-semibold">Phone</th>
+                    <th className="py-2.5 pr-4 font-semibold">Email</th>
+                    <th className="py-2.5 pr-4 font-semibold text-right">Requests</th>
+                    <th className="py-2.5 pr-4 font-semibold text-right">Joining</th>
+                    <th className="py-2.5 pr-4 font-semibold">Marketing Consent</th>
+                    <th className="py-2.5 pr-4 font-semibold">Last Activity</th>
+                    <th className="py-2.5 font-semibold text-right">Privacy</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-[#E5DEC9]">
+                  {customers.map((c) => (
+                    <tr key={c.phone_normalized}>
+                      <td className="py-3 pr-4 font-semibold text-[#1E2420]">{c.latest_name}</td>
+                      <td className="py-3 pr-4 tabular-nums text-[#1E2420]">{c.phone_normalized}</td>
+                      <td className="py-3 pr-4 text-xs text-[#5C6760]">{c.latest_email || '—'}</td>
+                      <td className="py-3 pr-4 text-right tabular-nums">{c.request_count}</td>
+                      <td className="py-3 pr-4 text-right tabular-nums">{c.application_count}</td>
+                      <td className="py-3 pr-4 text-xs">
+                        {c.marketing_opt_in === 1 ? 'Opted in' : 'Request response only'}
+                      </td>
+                      <td className="py-3 pr-4 text-xs text-[#5C6760] tabular-nums">
+                        {new Date(c.last_activity).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 text-right whitespace-nowrap">
+                        {confirmDeletePhone === c.phone_normalized ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => deleteCustomerRecord(c.phone_normalized)}
+                              className="px-2.5 py-1 text-xs font-semibold bg-[#B83227] text-white rounded"
+                            >
+                              Confirm Delete
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeletePhone(null)}
+                              className="px-2.5 py-1 text-xs font-semibold border border-[#E5DEC9] text-[#1E2420] rounded"
+                            >
+                              Cancel
+                            </button>
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeletePhone(c.phone_normalized)}
+                            aria-label={`Remove record for ${c.phone_normalized}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#B83227] hover:bg-red-50 rounded"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                            Remove
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
     );
@@ -327,13 +382,13 @@ export const AdminLeadsTab: React.FC<{
       : ['New', 'Contacted', 'Referral link shared', 'External application submitted', 'Completed', 'Not proceeding'];
 
   return (
-    <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-5">
+    <section className="bg-white border border-[#E5DEC9] rounded-xl p-4 sm:p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-[#252B25]">
+          <h2 className="text-lg font-bold text-[#1E2420]">
             {mode === 'requests' ? 'Product Requests' : 'Joining Applications'}
           </h2>
-          <p className="text-xs text-[#647067]">
+          <p className="text-xs text-[#5C6760]">
             Update follow-up status, store private internal notes, and message customers via WhatsApp.
           </p>
         </div>
@@ -344,12 +399,12 @@ export const AdminLeadsTab: React.FC<{
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search name, ref, phone, email..."
-            className="w-full sm:w-64 min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
+            className="w-full sm:w-64 min-h-[42px] px-3 py-1.5 text-sm border border-[#E5DEC9] rounded-md"
           />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="min-h-[40px] px-3 py-1.5 text-sm border border-[#E9E7E1] rounded-md"
+            className="min-h-[42px] px-3 py-1.5 text-sm border border-[#E5DEC9] rounded-md"
           >
             <option value="all">All Statuses</option>
             {statuses.map((s) => (
@@ -362,7 +417,7 @@ export const AdminLeadsTab: React.FC<{
             type="button"
             onClick={handleExportCsv}
             disabled={(mode === 'requests' ? requests : applications).length === 0}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-md border border-[#E9E7E1] text-xs font-semibold text-[#252B25] hover:border-[#26733E] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[42px] rounded-md border border-[#E5DEC9] text-xs font-semibold text-[#1E2420] hover:border-[#1F5138] disabled:opacity-50"
           >
             <Download className="w-3.5 h-3.5" aria-hidden="true" />
             Export CSV
@@ -371,35 +426,35 @@ export const AdminLeadsTab: React.FC<{
       </div>
 
       {notice && (
-        <div className="p-3 rounded-md bg-[#F1F7F1] border border-[#26733E]/30 text-xs font-medium text-[#26733E]">
+        <div className="p-3 rounded-md bg-[#EEF5F0] border border-[#1F5138]/30 text-xs font-medium text-[#1F5138]">
           {notice}
         </div>
       )}
 
       {loading ? (
-        <p className="text-sm text-[#647067]">Loading records...</p>
+        <p className="text-sm text-[#5C6760]">Loading records...</p>
       ) : mode === 'requests' ? (
         requests.length === 0 ? (
-          <p className="text-sm text-[#647067]">No product requests match this filter.</p>
+          <p className="text-sm text-[#5C6760]">No product requests match this filter.</p>
         ) : (
           <div className="space-y-4">
             {requests.map((r) => (
-              <div key={r.id} className="p-4 rounded-lg border border-[#E9E7E1] bg-[#FBF7EF]/40 space-y-3">
+              <div key={r.id} className="p-4 rounded-lg border border-[#E5DEC9] bg-[#F9F5EC]/50 space-y-3">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div>
-                    <div className="text-xs font-semibold text-[#A87936] tabular-nums">
+                    <div className="text-xs font-semibold text-[#9C661F] tabular-nums">
                       {r.reference_code} · {new Date(r.created_at).toLocaleString()}
                     </div>
-                    <div className="text-base font-bold text-[#252B25]">
-                      {r.customer_name} — <span className="tabular-nums text-[#26733E]">{r.phone_normalized}</span>
+                    <div className="text-base font-bold text-[#1E2420]">
+                      {r.customer_name} — <span className="tabular-nums text-[#1F5138]">{r.phone_normalized}</span>
                       {r.customer_email && (
-                        <span className="ml-2 text-xs font-normal text-[#647067]">· {r.customer_email}</span>
+                        <span className="ml-2 text-xs font-normal text-[#5C6760]">· {r.customer_email}</span>
                       )}
                     </div>
-                    <div className="text-xs text-[#647067]">
+                    <div className="text-xs text-[#5C6760]">
                       Product: <strong>{r.product_name_snapshot}</strong> · Source: {r.source_page}
                     </div>
-                    {r.message && <p className="text-sm text-[#252B25] mt-1.5">“{r.message}”</p>}
+                    {r.message && <p className="text-sm text-[#1E2420] mt-1.5">“{r.message}”</p>}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -407,7 +462,7 @@ export const AdminLeadsTab: React.FC<{
                       aria-label={`Status for ${r.reference_code}`}
                       value={r.status}
                       onChange={(e) => updateRequest(r.id, e.target.value)}
-                      className="min-h-[40px] px-3 py-1.5 text-sm bg-white border border-[#E9E7E1] rounded-md font-medium"
+                      className="min-h-[42px] px-3 py-1.5 text-sm bg-white border border-[#E5DEC9] rounded-md font-medium"
                     >
                       {statuses.map((s) => (
                         <option key={s} value={s}>
@@ -420,7 +475,7 @@ export const AdminLeadsTab: React.FC<{
                         href={r.whatsapp_customer_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-md bg-[#26733E] text-white text-xs font-semibold"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[42px] rounded-md bg-[#1F5138] hover:bg-[#173D2A] text-white text-xs font-semibold"
                       >
                         <MessageCircle className="w-3.5 h-3.5" aria-hidden="true" />
                         WhatsApp
@@ -435,12 +490,12 @@ export const AdminLeadsTab: React.FC<{
                     value={notesDraft[r.id] || ''}
                     onChange={(e) => setNotesDraft((prev) => ({ ...prev, [r.id]: e.target.value }))}
                     placeholder="Private internal notes (never shown publicly)..."
-                    className="flex-1 min-h-[38px] px-3 py-1.5 text-xs bg-white border border-[#E9E7E1] rounded-md"
+                    className="flex-1 min-h-[40px] px-3 py-1.5 text-xs bg-white border border-[#E5DEC9] rounded-md"
                   />
                   <button
                     type="button"
                     onClick={() => updateRequest(r.id, r.status)}
-                    className="px-4 py-1.5 min-h-[38px] rounded-md bg-white border border-[#E9E7E1] text-xs font-semibold text-[#252B25] hover:border-[#26733E]"
+                    className="px-4 py-1.5 min-h-[40px] rounded-md bg-white border border-[#E5DEC9] text-xs font-semibold text-[#1E2420] hover:border-[#1F5138]"
                   >
                     Save Note
                   </button>
@@ -450,26 +505,26 @@ export const AdminLeadsTab: React.FC<{
           </div>
         )
       ) : applications.length === 0 ? (
-        <p className="text-sm text-[#647067]">No joining applications match this filter.</p>
+        <p className="text-sm text-[#5C6760]">No joining applications match this filter.</p>
       ) : (
         <div className="space-y-4">
           {applications.map((a) => (
-            <div key={a.id} className="p-4 rounded-lg border border-[#E9E7E1] bg-[#FBF7EF]/40 space-y-3">
+            <div key={a.id} className="p-4 rounded-lg border border-[#E5DEC9] bg-[#F9F5EC]/50 space-y-3">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                  <div className="text-xs font-semibold text-[#A87936] tabular-nums">
+                  <div className="text-xs font-semibold text-[#9C661F] tabular-nums">
                     {a.reference_code} · {new Date(a.created_at).toLocaleString()}
                   </div>
-                  <div className="text-base font-bold text-[#252B25]">
-                    {a.full_name} — <span className="tabular-nums text-[#26733E]">{a.phone_normalized}</span>
+                  <div className="text-base font-bold text-[#1E2420]">
+                    {a.full_name} — <span className="tabular-nums text-[#1F5138]">{a.phone_normalized}</span>
                     {a.email && (
-                      <span className="ml-2 text-xs font-normal text-[#647067]">· {a.email}</span>
+                      <span className="ml-2 text-xs font-normal text-[#5C6760]">· {a.email}</span>
                     )}
                   </div>
-                  <div className="text-xs text-[#647067]">
+                  <div className="text-xs text-[#5C6760]">
                     Referral link clicked: <strong>{a.referral_clicked === 1 ? 'Yes' : 'Not yet'}</strong>
                   </div>
-                  {a.question && <p className="text-sm text-[#252B25] mt-1.5">“{a.question}”</p>}
+                  {a.question && <p className="text-sm text-[#1E2420] mt-1.5">“{a.question}”</p>}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -477,7 +532,7 @@ export const AdminLeadsTab: React.FC<{
                     aria-label={`Status for ${a.reference_code}`}
                     value={a.status}
                     onChange={(e) => updateApplication(a.id, e.target.value)}
-                    className="min-h-[40px] px-3 py-1.5 text-sm bg-white border border-[#E9E7E1] rounded-md font-medium"
+                    className="min-h-[42px] px-3 py-1.5 text-sm bg-white border border-[#E5DEC9] rounded-md font-medium"
                   >
                     {statuses.map((s) => (
                       <option key={s} value={s}>
@@ -490,7 +545,7 @@ export const AdminLeadsTab: React.FC<{
                       href={a.whatsapp_customer_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-md bg-[#26733E] text-white text-xs font-semibold"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[42px] rounded-md bg-[#1F5138] hover:bg-[#173D2A] text-white text-xs font-semibold"
                     >
                       <MessageCircle className="w-3.5 h-3.5" aria-hidden="true" />
                       WhatsApp
@@ -505,12 +560,12 @@ export const AdminLeadsTab: React.FC<{
                   value={notesDraft[a.id] || ''}
                   onChange={(e) => setNotesDraft((prev) => ({ ...prev, [a.id]: e.target.value }))}
                   placeholder="Private internal notes (only mark Completed when verified)..."
-                  className="flex-1 min-h-[38px] px-3 py-1.5 text-xs bg-white border border-[#E9E7E1] rounded-md"
+                  className="flex-1 min-h-[40px] px-3 py-1.5 text-xs bg-white border border-[#E5DEC9] rounded-md"
                 />
                 <button
                   type="button"
                   onClick={() => updateApplication(a.id, a.status)}
-                  className="px-4 py-1.5 min-h-[38px] rounded-md bg-white border border-[#E9E7E1] text-xs font-semibold text-[#252B25] hover:border-[#26733E]"
+                  className="px-4 py-1.5 min-h-[40px] rounded-md bg-white border border-[#E5DEC9] text-xs font-semibold text-[#1E2420] hover:border-[#1F5138]"
                 >
                   Save Note
                 </button>

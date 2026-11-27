@@ -109,10 +109,10 @@ export function injectSeoHtml(html: string, reqPath: string, baseUrl: string): s
 
   let title =
     (seoTitleSetting?.value || '').trim() ||
-    'NN Market Rwanda — N-Nutrition Products & Referral Assistance';
+    'NN Market Rwanda (N Market in Rwanda) — N-Nutrition Products';
   let description =
     (seoDescSetting?.value || '').trim() ||
-    'Discover available N-Nutrition nutrition and wellness products in Rwanda, submit a request, and learn how to join through an independent marketing agent.';
+    'Shop and request N-Nutrition products at N Market in Rwanda (NN Market Rwanda). Simple ordering, RWF pricing, and joining assistance.';
   let robotsMeta = 'index, follow';
 
   const jsonLdObjects: Array<Record<string, unknown>> = [
@@ -120,14 +120,25 @@ export function injectSeoHtml(html: string, reqPath: string, baseUrl: string): s
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'NN Market Rwanda',
+      alternateName: ['N Market in Rwanda', 'N Market Rwanda', 'NN Market'],
       url: baseUrl,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${baseUrl}/products?q={search_term_string}`,
+        'query-input': 'required name=search_term_string',
+      },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'NN Market Rwanda',
+      alternateName: ['N Market in Rwanda', 'N Market Rwanda', 'NN Market'],
       description:
-        'Independent N-Nutrition product marketing, customer assistance, and referral guidance platform in Rwanda.',
+        'Independent N-Nutrition product discovery, customer request support, and distributor joining guidance in Rwanda.',
+      areaServed: {
+        '@type': 'Country',
+        name: 'Rwanda',
+      },
       url: baseUrl,
     },
   ];
@@ -173,10 +184,18 @@ export function injectSeoHtml(html: string, reqPath: string, baseUrl: string): s
         category: product.category_name_en,
         url: canonicalUrl,
       };
-      if (product.main_image) {
-        productSchema.image = product.main_image.startsWith('http')
-          ? product.main_image
-          : `${baseUrl}${product.main_image}`;
+      const galleryRows = db
+        .prepare('SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC')
+        .all((product as unknown as { id: string }).id) as Array<{ image_url: string }>;
+      const imageUrls = Array.from(
+        new Set(
+          [product.main_image, ...galleryRows.map((g) => g.image_url)]
+            .filter(Boolean)
+            .map((img) => (img.startsWith('http') ? img : `${baseUrl}${img}`))
+        )
+      );
+      if (imageUrls.length > 0) {
+        productSchema.image = imageUrls.length === 1 ? imageUrls[0] : imageUrls;
       }
       if (product.price_rwf !== null && product.price_rwf !== undefined) {
         productSchema.offers = {
