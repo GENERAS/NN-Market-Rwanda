@@ -1,13 +1,16 @@
 import type { Request, Response } from 'express';
-import { createApp } from './app';
-import { ensureDbReady } from './db';
+import { createApp } from '../server/app';
+import { ensureDbReady } from '../server/db';
 
-const app = createApp();
+let appInstance: ReturnType<typeof createApp> | null = null;
 
 export default async function handler(req: Request, res: Response) {
   try {
     await ensureDbReady();
-    return app(req, res);
+    if (!appInstance) {
+      appInstance = createApp();
+    }
+    return appInstance(req, res);
   } catch (err) {
     console.error('Vercel API invocation error:', err);
     if (!res.headersSent) {
