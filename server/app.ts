@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
-import { getDb } from './db';
+import { ensureDbReady } from './db';
 import publicRouter from './routes/public';
 import adminRouter from './routes/admin';
 import { handleRobotsTxt, handleSitemapXml } from './seo';
@@ -10,9 +10,6 @@ import { handleRobotsTxt, handleSitemapXml } from './seo';
 export function createApp() {
   const app = express();
   app.set('trust proxy', true);
-
-  // Initialize database on startup
-  getDb();
 
   app.use((_req: Request, res: Response, next: NextFunction) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -22,6 +19,20 @@ export function createApp() {
 
   app.use(express.json({ limit: '2mb' }));
 
+  app.get('/api/health', (_req: Request, res: Response) => {
+    res.json({ ok: true });
+  });
+
+  // Ensure database (node:sqlite or sql.js fallback) is ready before any DB-backed route runs
+  app.use(async (_req: Request, _res: Response, next: NextFunction) => {
+    try {
+      await ensureDbReady();
+      next();
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // Serve uploaded product images safely
   let uploadsDir = process.env.VERCEL
     ? path.resolve('/tmp', 'uploads')
@@ -30,7 +41,11 @@ export function createApp() {
     fs.mkdirSync(uploadsDir, { recursive: true });
   } catch {
     uploadsDir = path.resolve('/tmp', 'uploads');
-    fs.mkdirSync(uploadsDir, { recursive: true });
+    try {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    } catch {
+      // ignore if filesystem is restricted
+    }
   }
   app.use('/uploads', express.static(uploadsDir, { maxAge: '7d' }));
 
@@ -48,17 +63,18 @@ export function createApp() {
   app.use('/api/public', publicRouter);
   app.use('/api/admin', adminRouter);
 
-  app.get('/api/health', (_req: Request, res: Response) => {
-    res.json({ ok: true });
-  });
-
   app.use('/api', (_req: Request, res: Response) => {
     res.status(404).json({ error: 'API endpoint not found' });
   });
 
   // Error handler (including multer upload errors)
-  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    res.status(400).json({ error: err.message || 'Request error' });
+  app.use((err: Error & { status?: number; statusCode?: number; name?: string }, _req: Request, res: Response, _next: NextFunction) => {
+    const isClientUploadError = err.name === 'MulterError' || /allowed|upload path/i.test(err.message || '');
+    const status = err.status || err.statusCode || (isClientUploadError ? 400 : 500);
+    if (status >= 500) {
+      console.error('Server error:', err);
+    }
+    res.status(status).json({ error: err.message || 'Request error' });
   });
 
   return app;

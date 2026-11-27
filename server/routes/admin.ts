@@ -38,23 +38,26 @@ function resolveUploadsDir(): string {
     return preferred;
   } catch {
     const fallback = path.join(os.tmpdir(), 'uploads');
-    fs.mkdirSync(fallback, { recursive: true });
+    try {
+      fs.mkdirSync(fallback, { recursive: true });
+    } catch {
+      // ignore if filesystem is restricted
+    }
     return fallback;
   }
 }
 
-const UPLOADS_DIR = resolveUploadsDir();
-
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, UPLOADS_DIR);
+    cb(null, resolveUploadsDir());
   },
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname || '').toLowerCase();
     const safeExt = ['.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '.jpg';
     const targetName = `product_${Date.now()}_${crypto.randomBytes(6).toString('hex')}${safeExt}`;
-    const resolved = path.resolve(UPLOADS_DIR, targetName);
-    if (!resolved.startsWith(UPLOADS_DIR + path.sep)) {
+    const uploadsDir = resolveUploadsDir();
+    const resolved = path.resolve(uploadsDir, targetName);
+    if (!resolved.startsWith(uploadsDir + path.sep)) {
       cb(new Error('Invalid upload path'), '');
       return;
     }

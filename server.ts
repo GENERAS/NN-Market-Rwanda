@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createApp } from './server/app';
+import { ensureDbReady } from './server/db';
 import { getBaseUrl, injectSeoHtml } from './server/seo';
 
 export { createApp };
@@ -11,6 +12,7 @@ export { createApp };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function startServer() {
+  await ensureDbReady();
   const app = createApp();
   const isProd = process.env.NODE_ENV === 'production';
   const port = Number(process.env.PORT || 3000);

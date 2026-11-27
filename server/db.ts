@@ -1,8 +1,9 @@
-import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
+import { createRequire } from 'node:module';
+import initSqlJsInline from 'sql.js/dist/sql-wasm-inline.js';
 import {
   SEED_CATEGORIES,
   SEED_CONTENT_BLOCKS,
@@ -12,7 +13,21 @@ import {
 } from '../shared/catalogSeed';
 import { hashPassword } from './security';
 
-let dbInstance: DatabaseSync | null = null;
+export type SqlParam = string | number | Uint8Array | null | undefined;
+
+export interface DbStatement {
+  get(...params: SqlParam[]): unknown;
+  all(...params: SqlParam[]): unknown[];
+  run(...params: SqlParam[]): { changes: number };
+}
+
+export interface DbLike {
+  exec(sql: string): void;
+  prepare(sql: string): DbStatement;
+}
+
+let dbInstance: DbLike | null = null;
+let dbInitPromise: Promise<DbLike> | null = null;
 
 function resolveDbPath(): string {
   if (process.env.NN_DB_PATH) {
@@ -29,31 +44,187 @@ function resolveDbPath(): string {
     return preferred;
   } catch {
     const tmpFallback = path.join(os.tmpdir(), 'nn_market.db');
-    fs.mkdirSync(path.dirname(tmpFallback), { recursive: true });
+    try {
+      fs.mkdirSync(path.dirname(tmpFallback), { recursive: true });
+    } catch {
+      // ignore if tmpdir already exists
+    }
     return tmpFallback;
   }
 }
 
-export function getDb(): DatabaseSync {
+function tryOpenNodeSqlite(dbPath: string): DbLike | null {
+  if (process.env.NN_FORCE_SQLJS === '1') {
+    return null;
+  }
+
+  try {
+    const req = createRequire(import.meta.url);
+    const mod = req('node:sqlite') as { DatabaseSync?: new (location: string) => DbLike };
+    if (!mod || typeof mod.DatabaseSync !== 'function') {
+      return null;
+    }
+
+    if (dbPath !== ':memory:') {
+      fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+    }
+
+    const nativeDb = new mod.DatabaseSync(dbPath);
+    nativeDb.exec('PRAGMA journal_mode = WAL;');
+    nativeDb.exec('PRAGMA foreign_keys = ON;');
+    initializeSchema(nativeDb);
+    seedInitialData(nativeDb);
+    return nativeDb;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeSqlJsParams(params: SqlParam[]): Array<string | number | Uint8Array | null> {
+  return params.map((p) => (p === undefined ? null : p));
+}
+
+async function openSqlJsDb(dbPath: string): Promise<DbLike> {
+  const initFn =
+    typeof initSqlJsInline === 'function'
+      ? initSqlJsInline
+      : (initSqlJsInline as unknown as { default: typeof initSqlJsInline }).default;
+
+  const SQL = await initFn();
+
+  let initialData: Uint8Array | undefined;
+  if (dbPath !== ':memory:') {
+    try {
+      fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+      if (fs.existsSync(dbPath)) {
+        const buf = fs.readFileSync(dbPath);
+        if (buf.length > 0) {
+          initialData = new Uint8Array(buf);
+        }
+      }
+    } catch {
+      // start fresh if unreadable
+    }
+  }
+
+  const sqlDb = initialData ? new SQL.Database(initialData) : new SQL.Database();
+  let suspendPersist = false;
+
+  const persist = () => {
+    if (suspendPersist || dbPath === ':memory:') return;
+    try {
+      const exported = sqlDb.export();
+      fs.writeFileSync(dbPath, Buffer.from(exported));
+    } catch {
+      // ignore write errors in ephemeral/read-only environments
+    }
+  };
+
+  const adapter: DbLike = {
+    exec(sql: string) {
+      sqlDb.exec(sql);
+      if (!/^\s*PRAGMA\b/i.test(sql)) {
+        persist();
+      }
+    },
+    prepare(sql: string): DbStatement {
+      return {
+        get(...params: SqlParam[]) {
+          const stmt = sqlDb.prepare(sql);
+          try {
+            if (params.length > 0) {
+              stmt.bind(normalizeSqlJsParams(params));
+            }
+            return stmt.step() ? stmt.getAsObject() : undefined;
+          } finally {
+            stmt.free();
+          }
+        },
+        all(...params: SqlParam[]) {
+          const stmt = sqlDb.prepare(sql);
+          const rows: unknown[] = [];
+          try {
+            if (params.length > 0) {
+              stmt.bind(normalizeSqlJsParams(params));
+            }
+            while (stmt.step()) {
+              rows.push(stmt.getAsObject());
+            }
+            return rows;
+          } finally {
+            stmt.free();
+          }
+        },
+        run(...params: SqlParam[]) {
+          const stmt = sqlDb.prepare(sql);
+          try {
+            if (params.length > 0) {
+              stmt.bind(normalizeSqlJsParams(params));
+            }
+            stmt.step();
+            const changes = sqlDb.getRowsModified();
+            persist();
+            return { changes };
+          } finally {
+            stmt.free();
+          }
+        },
+      };
+    },
+  };
+
+  suspendPersist = true;
+  try {
+    adapter.exec('PRAGMA foreign_keys = ON;');
+    initializeSchema(adapter);
+    seedInitialData(adapter);
+  } finally {
+    suspendPersist = false;
+  }
+  persist();
+
+  return adapter;
+}
+
+export async function ensureDbReady(): Promise<DbLike> {
+  if (dbInstance) return dbInstance;
+  if (dbInitPromise) return dbInitPromise;
+
+  dbInitPromise = (async () => {
+    const dbPath = resolveDbPath();
+    const nativeDb = tryOpenNodeSqlite(dbPath);
+    if (nativeDb) {
+      dbInstance = nativeDb;
+      return nativeDb;
+    }
+
+    const sqlJsDb = await openSqlJsDb(dbPath);
+    dbInstance = sqlJsDb;
+    return sqlJsDb;
+  })();
+
+  try {
+    return await dbInitPromise;
+  } catch (err) {
+    dbInitPromise = null;
+    throw err;
+  }
+}
+
+export function getDb(): DbLike {
   if (dbInstance) return dbInstance;
 
   const dbPath = resolveDbPath();
-  if (dbPath !== ':memory:') {
-    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+  const nativeDb = tryOpenNodeSqlite(dbPath);
+  if (nativeDb) {
+    dbInstance = nativeDb;
+    return nativeDb;
   }
 
-  const db = new DatabaseSync(dbPath);
-  db.exec('PRAGMA journal_mode = WAL;');
-  db.exec('PRAGMA foreign_keys = ON;');
-
-  initializeSchema(db);
-  seedInitialData(db);
-
-  dbInstance = db;
-  return db;
+  throw new Error('Database not initialized; ensureDbReady() must resolve before getDb().');
 }
 
-export function initializeSchema(db: DatabaseSync): void {
+export function initializeSchema(db: DbLike): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS admin_roles (
       id TEXT PRIMARY KEY,
@@ -255,7 +426,7 @@ export function initializeSchema(db: DatabaseSync): void {
   db.exec('CREATE INDEX IF NOT EXISTS idx_joining_email ON joining_applications(email)');
 }
 
-function seedInitialData(db: DatabaseSync): void {
+function seedInitialData(db: DbLike): void {
   const now = new Date().toISOString();
 
   // 1. Seed admin role & default pre-configured admin account (editable anytime in Admin Settings)
