@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import { createApp } from '../server/app';
-import { ensureDbReady } from '../server/db';
+import { createApp } from './app';
+import { ensureDbReady } from './db';
 
 const app = createApp();
 
