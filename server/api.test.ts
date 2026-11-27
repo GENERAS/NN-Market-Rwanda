@@ -9,7 +9,7 @@ import path from 'node:path';
 const tmpDbPath = path.join(os.tmpdir(), `nn_market_test_${Date.now()}.db`);
 process.env.NN_DB_PATH = tmpDbPath;
 
-import { createApp } from '../server';
+import { createApp } from './app';
 
 let server: http.Server;
 let baseUrl = '';
@@ -89,28 +89,62 @@ test('API end-to-end security, contact gating, product visibility, and admin wor
   assert.equal(seededReq.status, 201);
   assert.ok(String(seededReq.json.whatsappUrl).startsWith('https://wa.me/250794144738?text='));
 
-  // 4. First-run admin setup + verify phone login (0794144738) + configure private settings
-  const setup = await requestJson('/api/admin/auth/setup', {
+  // 4. Configured admin login with email (generaskagiraneza@gmail.com) and phone (0794144738) using password 123456
+  const emailLogin = await requestJson('/api/admin/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      fullName: 'Agent Kigali',
-      email: 'agent@nnmarket.rw',
-      password: 'SecurePassword123',
+      identifier: 'generaskagiraneza@gmail.com',
+      password: '123456',
     }),
   });
-  assert.equal(setup.status, 201);
-  const adminToken = String(setup.json.token);
+  assert.equal(emailLogin.status, 200);
+  const adminToken = String(emailLogin.json.token);
 
-  // Admin can log in using phone number 0794144738 as well as email
   const phoneLogin = await requestJson('/api/admin/auth/login', {
     method: 'POST',
     body: JSON.stringify({
       identifier: '0794144738',
-      password: 'SecurePassword123',
+      password: '123456',
     }),
   });
   assert.equal(phoneLogin.status, 200);
   assert.ok(phoneLogin.json.token);
+
+  // 4b. Pre-live unlocked entry works when LOCK_ADMIN !== 'true', and blocks when LOCK_ADMIN === 'true'
+  const preliveRes = await requestJson('/api/admin/auth/prelive-enter', {
+    method: 'POST',
+  });
+  assert.equal(preliveRes.status, 200);
+  assert.ok(preliveRes.json.token);
+
+  process.env.LOCK_ADMIN = 'true';
+  const preliveBlocked = await requestJson('/api/admin/auth/prelive-enter', {
+    method: 'POST',
+  });
+  assert.equal(preliveBlocked.status, 403);
+  delete process.env.LOCK_ADMIN;
+
+  // 4c. Admin can update credentials anytime
+  const updateCreds = await requestJson('/api/admin/auth/credentials', {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${adminToken}` },
+    body: JSON.stringify({
+      fullName: 'Agent Kigali',
+      email: 'generaskagiraneza@gmail.com',
+      phone: '0794144738',
+      newPassword: 'UpdatedPass2026',
+    }),
+  });
+  assert.equal(updateCreds.status, 200);
+
+  const loginUpdated = await requestJson('/api/admin/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      identifier: '0794144738',
+      password: 'UpdatedPass2026',
+    }),
+  });
+  assert.equal(loginUpdated.status, 200);
 
   const saveSettings = await requestJson('/api/admin/settings', {
     method: 'PUT',

@@ -1,9 +1,18 @@
 import crypto from 'node:crypto';
 
-const EPHEMERAL_SESSION_SECRET = crypto.randomBytes(32).toString('hex');
+const FALLBACK_SESSION_SECRET = crypto
+  .createHash('sha256')
+  .update(
+    `${process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.APP_URL || process.cwd()}:nn-market-rwanda-session-key`
+  )
+  .digest('hex');
 
 function getSessionSecret(): string {
-  return process.env.SESSION_SECRET || EPHEMERAL_SESSION_SECRET;
+  return process.env.SESSION_SECRET || FALLBACK_SESSION_SECRET;
+}
+
+export function isAdminLocked(): boolean {
+  return process.env.LOCK_ADMIN === 'true';
 }
 
 export function hashPassword(password: string): string {

@@ -6,13 +6,27 @@ export const AdminContentSettingsTab: React.FC<{
   mode: 'content' | 'settings';
   onDataChanged: () => void;
 }> = ({ mode, onDataChanged }) => {
-  const { adminToken } = useApp();
+  const { adminToken, adminUser, setAdminSession } = useApp();
   const [blocks, setBlocks] = useState<ContentBlock[]>([]);
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [credFullName, setCredFullName] = useState(adminUser?.fullName || '');
+  const [credEmail, setCredEmail] = useState(adminUser?.email || '');
+  const [credPhone, setCredPhone] = useState(adminUser?.phoneNormalized || '');
+  const [credPassword, setCredPassword] = useState('');
+  const [savingCreds, setSavingCreds] = useState(false);
+
+  useEffect(() => {
+    if (adminUser) {
+      setCredFullName(adminUser.fullName || 'NN Market Rwanda Admin');
+      setCredEmail(adminUser.email || '');
+      if (adminUser.phoneNormalized) setCredPhone(adminUser.phoneNormalized);
+    }
+  }, [adminUser]);
 
   const [newFaq, setNewFaq] = useState({
     scope: 'general',
@@ -125,11 +139,45 @@ export const AdminContentSettingsTab: React.FC<{
     onDataChanged();
   }
 
+  async function saveCredentials() {
+    if (!adminToken) return;
+    setError(null);
+    setNotice(null);
+    setSavingCreds(true);
+    try {
+      const res = await fetch('/api/admin/auth/credentials', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          fullName: credFullName,
+          email: credEmail,
+          phone: credPhone,
+          newPassword: credPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Could not update admin credentials.');
+        return;
+      }
+      setAdminSession(adminToken, data.user);
+      setCredPassword('');
+      setNotice('Admin credentials updated.');
+    } catch {
+      setError('Could not update admin credentials.');
+    } finally {
+      setSavingCreds(false);
+    }
+  }
+
   if (loading) return <p className="text-sm text-[#647067]">Loading...</p>;
 
   if (mode === 'settings') {
     return (
-      <form onSubmit={saveSettings} className="space-y-6">
+      <div className="space-y-6">
         {notice && (
           <div className="p-3.5 rounded-md bg-[#F1F7F1] border border-[#26733E]/30 text-sm text-[#26733E] font-medium">
             {notice}
@@ -140,6 +188,85 @@ export const AdminContentSettingsTab: React.FC<{
             {error}
           </div>
         )}
+
+        {/* Admin Account & Credentials */}
+        <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-bold text-[#252B25]">Admin Login &amp; Credentials</h2>
+            <p className="text-xs text-[#647067]">
+              Change your admin email, phone number, or password anytime. When ready to go live, set <code className="px-1 py-0.5 bg-[#FBF7EF] rounded">LOCK_ADMIN=true</code> in your environment variables to require password-only sign-in.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="set-adm-name" className="block text-xs font-semibold text-[#252B25] mb-1">
+                Admin Full Name
+              </label>
+              <input
+                id="set-adm-name"
+                type="text"
+                value={credFullName}
+                onChange={(e) => setCredFullName(e.target.value)}
+                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="set-adm-email" className="block text-xs font-semibold text-[#252B25] mb-1">
+                Admin Login Email
+              </label>
+              <input
+                id="set-adm-email"
+                type="email"
+                value={credEmail}
+                onChange={(e) => setCredEmail(e.target.value)}
+                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="set-adm-phone" className="block text-xs font-semibold text-[#252B25] mb-1">
+                Admin Login Phone (Rwanda)
+              </label>
+              <input
+                id="set-adm-phone"
+                type="tel"
+                value={credPhone}
+                onChange={(e) => setCredPhone(e.target.value)}
+                placeholder="07XXXXXXXX"
+                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="set-adm-pass" className="block text-xs font-semibold text-[#252B25] mb-1">
+                New Password (leave blank to keep current)
+              </label>
+              <input
+                id="set-adm-pass"
+                type="password"
+                value={credPassword}
+                onChange={(e) => setCredPassword(e.target.value)}
+                placeholder="Min 6 characters"
+                className="w-full min-h-[42px] px-3 py-2 text-sm border border-[#E9E7E1] rounded-md"
+              />
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="button"
+              disabled={savingCreds}
+              onClick={saveCredentials}
+              className="px-5 py-2.5 min-h-[42px] rounded-md bg-[#26733E] hover:bg-[#1e5c31] text-white text-xs font-semibold disabled:opacity-60"
+            >
+              {savingCreds ? 'Updating...' : 'Update Admin Credentials'}
+            </button>
+          </div>
+        </section>
+
+        <form onSubmit={saveSettings} className="space-y-6">
 
         {/* Private Contact & Referral Settings */}
         <section className="bg-white border border-[#E9E7E1] rounded-lg p-6 space-y-4">
@@ -277,6 +404,7 @@ export const AdminContentSettingsTab: React.FC<{
           </div>
         </section>
       </form>
+      </div>
     );
   }
 

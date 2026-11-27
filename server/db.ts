@@ -10,6 +10,7 @@ import {
   SEED_PRODUCTS,
   SEED_PUBLIC_SETTINGS,
 } from '../shared/catalogSeed';
+import { hashPassword } from './security';
 
 let dbInstance: DatabaseSync | null = null;
 
@@ -257,13 +258,29 @@ export function initializeSchema(db: DatabaseSync): void {
 function seedInitialData(db: DatabaseSync): void {
   const now = new Date().toISOString();
 
-  // 1. Seed admin role
+  // 1. Seed admin role & default pre-configured admin account (editable anytime in Admin Settings)
   const roleCount = db.prepare('SELECT COUNT(*) as cnt FROM admin_roles').get() as { cnt: number };
   if (roleCount.cnt === 0) {
     db.prepare('INSERT INTO admin_roles (id, name, description, created_at) VALUES (?, ?, ?, ?)').run(
       'role-admin',
       'admin',
       'Independent Marketing Agent Administrator',
+      now
+    );
+  }
+
+  const userCount = db.prepare('SELECT COUNT(*) as cnt FROM users').get() as { cnt: number };
+  if (userCount.cnt === 0) {
+    db.prepare(
+      `INSERT INTO users (id, email, full_name, phone_normalized, password_hash, role_id, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, 'role-admin', 1, ?, ?)`
+    ).run(
+      'admin-default',
+      'generaskagiraneza@gmail.com',
+      'NN Market Rwanda Admin',
+      '+250794144738',
+      hashPassword('123456'),
+      now,
       now
     );
   }

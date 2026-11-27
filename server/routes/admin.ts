@@ -8,6 +8,7 @@ import {
   createSessionToken,
   hashIp,
   hashPassword,
+  isAdminLocked,
   SlidingWindowRateLimiter,
   verifyAdminPasscodeOverride,
   verifyPassword,
@@ -79,6 +80,7 @@ interface AuthenticatedRequest extends Request {
     id: string;
     email: string;
     fullName: string;
+    phoneNormalized?: string;
     role: string;
   };
 }
@@ -116,13 +118,13 @@ function requireAdmin(req: AuthenticatedRequest, res: Response, next: NextFuncti
   const db = getDb();
   const user = db
     .prepare(
-      `SELECT u.id, u.email, u.full_name, u.is_active, r.name as role_name
+      `SELECT u.id, u.email, u.full_name, u.phone_normalized, u.is_active, r.name as role_name
        FROM users u
        JOIN admin_roles r ON u.role_id = r.id
        WHERE u.id = ?`
     )
     .get(payload.userId) as
-    | { id: string; email: string; full_name: string; is_active: number; role_name: string }
+    | { id: string; email: string; full_name: string; phone_normalized: string; is_active: number; role_name: string }
     | undefined;
 
   if (!user || user.is_active !== 1) {
@@ -134,6 +136,7 @@ function requireAdmin(req: AuthenticatedRequest, res: Response, next: NextFuncti
     id: user.id,
     email: user.email,
     fullName: user.full_name,
+    phoneNormalized: user.phone_normalized,
     role: user.role_name,
   };
   next();
@@ -144,10 +147,11 @@ adminRouter.get('/auth/status', (req: Request, res: Response) => {
   const userCount = (db.prepare('SELECT COUNT(*) as cnt FROM users').get() as { cnt: number }).cnt;
   const hasEnvPasscode = Boolean((process.env.ADMIN_PASSCODE || '').trim());
   const needsSetup = userCount === 0 && !hasEnvPasscode;
+  const adminLocked = isAdminLocked();
 
   const token = getBearerToken(req);
   let authenticated = false;
-  let user: { id: string; email: string; fullName: string; role: string } | undefined;
+  let user: { id: string; email: string; fullName: string; phoneNormalized?: string; role: string } | undefined;
 
   if (token) {
     const payload = verifySessionToken(token);
@@ -158,16 +162,22 @@ adminRouter.get('/auth/status', (req: Request, res: Response) => {
       } else {
         const dbUser = db
           .prepare(
-            `SELECT u.id, u.email, u.full_name, u.is_active, r.name as role_name
+            `SELECT u.id, u.email, u.full_name, u.phone_normalized, u.is_active, r.name as role_name
              FROM users u JOIN admin_roles r ON u.role_id = r.id
              WHERE u.id = ? AND u.is_active = 1`
           )
           .get(payload.userId) as
-          | { id: string; email: string; full_name: string; role_name: string }
+          | { id: string; email: string; full_name: string; phone_normalized: string; role_name: string }
           | undefined;
         if (dbUser) {
           authenticated = true;
-          user = { id: dbUser.id, email: dbUser.email, fullName: dbUser.full_name, role: dbUser.role_name };
+          user = {
+            id: dbUser.id,
+            email: dbUser.email,
+            fullName: dbUser.full_name,
+            phoneNormalized: dbUser.phone_normalized,
+            role: dbUser.role_name,
+          };
         }
       }
     }
@@ -176,6 +186,7 @@ adminRouter.get('/auth/status', (req: Request, res: Response) => {
   res.json({
     needsSetup,
     hasEnvPasscode,
+    adminLocked,
     authenticated,
     user,
   });
@@ -216,8 +227,8 @@ adminRouter.post('/auth/setup', (req: Request, res: Response) => {
     phoneNormalized = phoneCheck.normalized;
   }
 
-  if (password.length < 8) {
-    res.status(400).json({ error: 'Password must be at least 8 characters long.' });
+  if (password.length < 6) {
+    res.status(400).json({ error: 'Password must be at least 6 characters long.' });
     return;
   }
 
@@ -236,16 +247,18 @@ adminRouter.post('/auth/setup', (req: Request, res: Response) => {
   res.status(201).json({
     ok: true,
     token,
-    user: { id: userId, email, fullName, role: 'admin' },
+    user: { id: userId, email, fullName, phoneNormalized, role: 'admin' },
   });
 });
 
 adminRouter.post('/auth/login', (req: Request, res: Response) => {
-  const ip = req.ip || req.socket.remoteAddress || 'unknown';
-  const rate = loginLimiter.check(`admin_login:${ip}`);
-  if (!rate.allowed) {
-    res.status(429).json({ error: `Too many login attempts. Wait ${rate.retryAfterSeconds}s.` });
-    return;
+  if (isAdminLocked()) {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const rate = loginLimiter.check(`admin_login:${ip}`);
+    if (!rate.allowed) {
+      res.status(429).json({ error: `Too many login attempts. Wait ${rate.retryAfterSeconds}s.` });
+      return;
+    }
   }
 
   const body = req.body || {};
@@ -263,13 +276,18 @@ adminRouter.post('/auth/login', (req: Request, res: Response) => {
   if (verifyAdminPasscodeOverride(password)) {
     const token = createSessionToken({
       userId: 'env-admin',
-      email: identifierEmail || 'admin@nnmarket.rw',
+      email: identifierEmail || 'generaskagiraneza@gmail.com',
       role: 'admin',
     });
     res.json({
       ok: true,
       token,
-      user: { id: 'env-admin', email: identifierEmail || 'admin@nnmarket.rw', fullName: 'Administrator', role: 'admin' },
+      user: {
+        id: 'env-admin',
+        email: identifierEmail || 'generaskagiraneza@gmail.com',
+        fullName: 'Administrator',
+        role: 'admin',
+      },
     });
     return;
   }
@@ -282,7 +300,7 @@ adminRouter.post('/auth/login', (req: Request, res: Response) => {
   const db = getDb();
   const user = db
     .prepare(
-      `SELECT u.id, u.email, u.full_name, u.password_hash, u.is_active, r.name as role_name
+      `SELECT u.id, u.email, u.full_name, u.phone_normalized, u.password_hash, u.is_active, r.name as role_name
        FROM users u JOIN admin_roles r ON u.role_id = r.id
        WHERE u.email = ? OR (u.phone_normalized != '' AND u.phone_normalized = ?)`
     )
@@ -291,6 +309,7 @@ adminRouter.post('/auth/login', (req: Request, res: Response) => {
         id: string;
         email: string;
         full_name: string;
+        phone_normalized: string;
         password_hash: string;
         is_active: number;
         role_name: string;
@@ -308,12 +327,138 @@ adminRouter.post('/auth/login', (req: Request, res: Response) => {
   res.json({
     ok: true,
     token,
-    user: { id: user.id, email: user.email, fullName: user.full_name, role: user.role_name },
+    user: {
+      id: user.id,
+      email: user.email,
+      fullName: user.full_name,
+      phoneNormalized: user.phone_normalized,
+      role: user.role_name,
+    },
+  });
+});
+
+// Pre-live unlocked entry so admin is never locked out before going live (disabled automatically when LOCK_ADMIN=true)
+adminRouter.post('/auth/prelive-enter', (_req: Request, res: Response) => {
+  if (isAdminLocked()) {
+    res.status(403).json({ error: 'Direct pre-live access is locked in live mode. Please sign in with your password.' });
+    return;
+  }
+
+  const db = getDb();
+  const dbUser = db
+    .prepare(
+      `SELECT u.id, u.email, u.full_name, u.phone_normalized, r.name as role_name
+       FROM users u JOIN admin_roles r ON u.role_id = r.id
+       WHERE u.is_active = 1
+       ORDER BY u.created_at ASC LIMIT 1`
+    )
+    .get() as
+    | { id: string; email: string; full_name: string; phone_normalized: string; role_name: string }
+    | undefined;
+
+  if (!dbUser) {
+    res.status(404).json({ error: 'Admin user record not found.' });
+    return;
+  }
+
+  const token = createSessionToken({ userId: dbUser.id, email: dbUser.email, role: dbUser.role_name });
+  writeAuditLog(dbUser.id, 'ADMIN_PRELIVE_ENTER', 'users', dbUser.id, {});
+
+  res.json({
+    ok: true,
+    token,
+    user: {
+      id: dbUser.id,
+      email: dbUser.email,
+      fullName: dbUser.full_name,
+      phoneNormalized: dbUser.phone_normalized,
+      role: dbUser.role_name,
+    },
   });
 });
 
 // Protect all routes below this middleware
 adminRouter.use(requireAdmin);
+
+adminRouter.put('/auth/credentials', (req: AuthenticatedRequest, res: Response) => {
+  const db = getDb();
+  const body = req.body || {};
+
+  const fullName = sanitizePlainText(String(body.fullName || ''), 100);
+  const email = sanitizePlainText(String(body.email || ''), 120).toLowerCase();
+  const rawPhone = sanitizePlainText(String(body.phone || ''), 40);
+  const newPassword = String(body.newPassword || '');
+
+  if (fullName.length < 2) {
+    res.status(400).json({ error: 'Full name must be at least 2 characters.' });
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    res.status(400).json({ error: 'Please enter a valid admin email address.' });
+    return;
+  }
+
+  let phoneNormalized = req.adminUser?.phoneNormalized || '+250794144738';
+  if (rawPhone) {
+    const phoneCheck = validateAndNormalizeRwandaPhone(rawPhone);
+    if (!phoneCheck.valid || !phoneCheck.normalized) {
+      res.status(400).json({ error: 'Please enter a valid Rwandan phone number (e.g. 0794144738).' });
+      return;
+    }
+    phoneNormalized = phoneCheck.normalized;
+  }
+
+  if (newPassword && newPassword.length < 6) {
+    res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+    return;
+  }
+
+  let targetId = req.adminUser?.id || '';
+  if (targetId === 'env-admin' || !targetId) {
+    const firstUser = db.prepare('SELECT id FROM users WHERE is_active = 1 ORDER BY created_at ASC LIMIT 1').get() as
+      | { id: string }
+      | undefined;
+    if (!firstUser) {
+      res.status(404).json({ error: 'No database admin record available to update.' });
+      return;
+    }
+    targetId = firstUser.id;
+  }
+
+  const conflict = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(email, targetId);
+  if (conflict) {
+    res.status(400).json({ error: 'Another admin account already uses this email address.' });
+    return;
+  }
+
+  const now = new Date().toISOString();
+  if (newPassword) {
+    const passwordHash = hashPassword(newPassword);
+    db.prepare(
+      'UPDATE users SET full_name = ?, email = ?, phone_normalized = ?, password_hash = ?, updated_at = ? WHERE id = ?'
+    ).run(fullName, email, phoneNormalized, passwordHash, now, targetId);
+  } else {
+    db.prepare(
+      'UPDATE users SET full_name = ?, email = ?, phone_normalized = ?, updated_at = ? WHERE id = ?'
+    ).run(fullName, email, phoneNormalized, now, targetId);
+  }
+
+  writeAuditLog(targetId, 'ADMIN_CREDENTIALS_UPDATED', 'users', targetId, {
+    email,
+    passwordChanged: Boolean(newPassword),
+  });
+
+  res.json({
+    ok: true,
+    user: {
+      id: targetId,
+      email,
+      fullName,
+      phoneNormalized,
+      role: 'admin',
+    },
+  });
+});
 
 adminRouter.get('/overview', (_req: AuthenticatedRequest, res: Response) => {
   const db = getDb();
