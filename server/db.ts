@@ -59,7 +59,8 @@ function tryOpenNodeSqlite(dbPath: string): DbLike | null {
   }
 
   try {
-    const req = createRequire(import.meta.url);
+    const req =
+      typeof require === 'function' ? require : createRequire(import.meta.url);
     const mod = req('node:sqlite') as { DatabaseSync?: new (location: string) => DbLike };
     if (!mod || typeof mod.DatabaseSync !== 'function') {
       return null;
